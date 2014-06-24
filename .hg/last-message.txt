@@ -1,1 +1,0 @@
-Fixing improperly sized g_size array in clEnqueueNDRangeKernel
