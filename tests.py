@@ -56,3 +56,12 @@ class TestPyArray(BaseTest):
         y2 = array('f', (m*xi+b for xi in x))
         assert_sequence_almost_equal(y, y2)
 
+
+class TestCopyBuffer(BaseTest):
+    def check(self, queue, kernel):
+        expected = numpy.arange(10)
+        src_buf, evt = buffer_from_ndarray(queue, expected)
+        dst_buf, evt = buffer_from_ndarray(queue, numpy.ones_like(expected))
+        clEnqueueCopyBuffer(queue, src_buf, dst_buf)
+        answer, evt = buffer_to_ndarray(queue, dst_buf, shape=expected.shape, dtype=expected.dtype)
+        numpy.testing.assert_equal(answer, expected)

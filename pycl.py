@@ -1960,6 +1960,19 @@ def clEnqueueWriteBuffer(queue, mem, pointer, size=None,
                               nevents, wait_array, byref(out_event))
     return out_event
 
+@_wrapdll(cl_command_queue, cl_buffer, cl_buffer, size_t, size_t,
+          void_p, cl_uint, P(cl_event), P(cl_event))
+def clEnqueueCopyBuffer(queue, src_buffer, dst_buffer, src_offset=0, dst_offset=0,
+                        size=None, wait_for=None):
+    if size is None:
+        size = clGetMemObjectInfo(dst_buffer, CL_MEM_SIZE)
+    nevents, wait_array = _make_event_array(wait_for)
+    out_event = cl_event()
+    clEnqueueCopyBuffer.call(queue, src_buffer, dst_buffer, src_offset, dst_offset,
+                             size, nevents, wait_array, byref(out_event))
+    return out_event
+
+
 @_wrapdll(cl_mem, cl_mem_info, size_t, void_p, P(size_t))
 def clGetMemObjectInfo(mem, param_name):
     """
