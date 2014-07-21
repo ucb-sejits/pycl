@@ -1,9 +1,6 @@
-from distribute_setup import use_setuptools
-use_setuptools()
-
 from setuptools import setup
 
-from distutils.command.sdist import sdist
+from setuptools.command.sdist import sdist
 from subprocess import Popen, PIPE
 
 from pycl import __version__
@@ -41,7 +38,7 @@ setup(
     download_url="https://bitbucket.org/kw/pycl/downloads",
     py_modules=['pycl'],
     license='MIT',
-    description="OpenCL wrapper using ctypes",    
+    description="OpenCL wrapper using ctypes",
     long_description=open('README.txt').read(),
     tests_require=['nose'],
     cmdclass={'sdist': sdist_hg},
