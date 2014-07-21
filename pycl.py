@@ -2857,6 +2857,40 @@ def clEnqueueNDRangeKernel(queue, kernel, gsize=(1,), lsize=None,
     return out_event
 
 
+try:
+    from OpenGL import GL
+    HAVE_OPENGL = True
+except ImportError:
+    HAVE_OPENGL = False
+
+if HAVE_OPENGL:
+    @_wrapdll(cl_context, cl_mem_flags, GL.GLuint, P(cl_errnum),
+            res=cl_mem, err=_lastarg_errcheck)
+    def clCreateFromGLBuffer(context, bufobj, flags=cl_mem_flags.CL_MEM_READ_WRITE):
+        clCreateFromGLBuffer.call(context, flags, bufobj, byref(cl_errnum()))
+
+    @_wrapdll(cl_command_queue, cl_uint, P(cl_mem), cl_uint, P(cl_event), P(cl_event),
+            res=cl_int, err=_result_errcheck)
+    def clEnqueueAcquireGLObjects(queue, mem_objs, wait_for=None):
+        nevents, wait_array = _make_event_array(wait_for)
+        out_event = cl_event()
+        mem_obj_array = (cl_mem * len(mem_objs))(*mem_objs)
+        clEnqueueAcquireGLObjects.call(queue, len(mem_objs), mem_obj_array,
+                nevents, wait_array, byref(out_event))
+        return out_event
+
+    @_wrapdll(cl_command_queue, cl_uint, P(cl_mem), cl_uint, P(cl_event), P(cl_event),
+            res=cl_int, err=_result_errcheck)
+    def clEnqueueReleaseGLObjects(queue, mem_objs, wait_for=None):
+        nevents, wait_array = _make_event_array(wait_for)
+        out_event = cl_event()
+        mem_obj_array = (cl_mem * len(mem_objs))(*mem_objs)
+        clEnqueueReleaseGLObjects.call(queue, len(mem_objs), mem_obj_array,
+                nevents, wait_array, byref(out_event))
+        return out_event
+
+
+
 def buffer_from_ndarray(queue, ary, buf=None, **kw):
     """
     Creates (or simply writes to) an OpenCL buffer using the contents
