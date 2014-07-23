@@ -108,6 +108,7 @@ extensions (like OpenGL interop). Maybe later.
 __version__ = '0.1a2'
 
 import ctypes
+import _ctypes
 from ctypes import (
     c_size_t as size_t, c_void_p as void_p, c_char_p as char_p,
     POINTER as P, byref, sizeof, pointer, cast, create_string_buffer)
@@ -297,6 +298,8 @@ class cl_errnum(cl_enum):
     CL_INVALID_GLOBAL_WORK_SIZE =                 -63
     CL_INVALID_PROPERTY =                         -64
 
+    CL_INVALID_GL_SHAREGROUP_REFERENCE_KHR =      -1000
+
 class cl_platform_info(cl_uenum):
     """
     The set of possible parameter names used
@@ -458,6 +461,13 @@ class cl_context_info(cl_uenum):
     CL_CONTEXT_PROPERTIES =                       0x1082
     CL_CONTEXT_NUM_DEVICES =                      0x1083
     CL_CONTEXT_PLATFORM =                         0x1084
+
+    # FIXME: right place for these?
+    CL_GL_CONTEXT_KHR =                           0x2008
+    CL_EGL_DISPLAY_KHR =                          0x2009
+    CL_GLX_DISPLAY_KHR =                          0x200A
+    CL_WGL_HDC_KHR =                              0x200B
+    CL_CGL_SHAREGROUP_KHR =                       0x200C
 
 class cl_command_queue_info(cl_uenum):
     """
@@ -1462,10 +1472,12 @@ def clCreateContext(devices=None, platform=None, other_props=None):
     props = (cl_context_properties*(2*len(properties)+1))()
     for i, p in enumerate(properties):
         props[2*i] = p.value
-        try:
-            props[2*i+1] = properties[p]
-        except TypeError:
+        if isinstance(properties[p], _ctypes._Pointer):
+            props[2*i+1] = ctypes.addressof(properties[p].contents)
+        elif isinstance(properties[p], _ctypes._SimpleCData):
             props[2*i+1] = properties[p].value
+        else:
+            props[2*i+1] = properties[p]
     props[2*len(properties)] = 0
     if devices:
         device_array = (cl_device * len(devices))()
@@ -2857,6 +2869,11 @@ def clEnqueueNDRangeKernel(queue, kernel, gsize=(1,), lsize=None,
     return out_event
 
 
+@_wrapdll(cl_command_queue)
+def clFinish(queue):
+    clFinish.call(queue)
+
+
 try:
     from OpenGL import GL
     HAVE_OPENGL = True
@@ -2865,12 +2882,11 @@ except ImportError:
 
 if HAVE_OPENGL:
     @_wrapdll(cl_context, cl_mem_flags, GL.GLuint, P(cl_errnum),
-            res=cl_mem, err=_lastarg_errcheck)
+            res=cl_buffer, err=_lastarg_errcheck)
     def clCreateFromGLBuffer(context, bufobj, flags=cl_mem_flags.CL_MEM_READ_WRITE):
-        clCreateFromGLBuffer.call(context, flags, bufobj, byref(cl_errnum()))
+        return clCreateFromGLBuffer.call(context, flags, bufobj, byref(cl_errnum()))
 
-    @_wrapdll(cl_command_queue, cl_uint, P(cl_mem), cl_uint, P(cl_event), P(cl_event),
-            res=cl_int, err=_result_errcheck)
+    @_wrapdll(cl_command_queue, cl_uint, P(cl_mem), cl_uint, P(cl_event), P(cl_event))
     def clEnqueueAcquireGLObjects(queue, mem_objs, wait_for=None):
         nevents, wait_array = _make_event_array(wait_for)
         out_event = cl_event()
@@ -2879,8 +2895,7 @@ if HAVE_OPENGL:
                 nevents, wait_array, byref(out_event))
         return out_event
 
-    @_wrapdll(cl_command_queue, cl_uint, P(cl_mem), cl_uint, P(cl_event), P(cl_event),
-            res=cl_int, err=_result_errcheck)
+    @_wrapdll(cl_command_queue, cl_uint, P(cl_mem), cl_uint, P(cl_event), P(cl_event))
     def clEnqueueReleaseGLObjects(queue, mem_objs, wait_for=None):
         nevents, wait_array = _make_event_array(wait_for)
         out_event = cl_event()
