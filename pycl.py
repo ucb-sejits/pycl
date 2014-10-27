@@ -188,7 +188,7 @@ class cl_bitfield(cl_ulong):
     def __and__(self, other):
         assert isinstance(other, self.__class__)
         return self.__class__(self.value & other.value)
-    def __xor__(self):
+    def __xor__(self, other):
         assert isinstance(other, self.__class__)
         return self.__class__(self.value ^ other.value)
     def __not__(self):
@@ -3024,7 +3024,8 @@ def _make_all():
     g['__all__'] = __all__
 _make_all()
 
-if __name__ == '__main__':
+
+def show_all():
     import sys
     if '--doctest' in sys.argv:
         import doctest
@@ -3053,3 +3054,7 @@ if __name__ == '__main__':
                 for ul in _device_info_bools:
                     print("       {:44s}: {}".format(ul, clGetDeviceInfo(d, ul)))
                 print("    Extensions: %s" % ", ".join(d.extensions))
+
+
+if __name__ == '__main__':
+    show_all()
