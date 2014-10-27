@@ -3039,9 +3039,17 @@ if __name__ == '__main__':
             print("       Profile: %s" % p.profile)
             print("    Extensions: %s" % ", ".join(p.extensions))
             for d in clGetDeviceIDs(p):
+                print("="*80)
                 print("    %s: %s" % (str(d.type)[15:], d.name))
                 print("        Vendor: %s" % d.vendor)
                 print("       Version: %s" % d.version)
                 print("       Profile: %s" % d.profile)
                 print("        Driver: %s" % d.driver_version)
+                # print(_device_info_ulongs)
+                for ul in _device_info_ulongs:
+                    print("       {:44s}: {}".format(ul, clGetDeviceInfo(d, ul)))
+                for ul in _device_info_sizes:
+                    print("       {:44s}: {}".format(ul, clGetDeviceInfo(d, ul)))
+                for ul in _device_info_bools:
+                    print("       {:44s}: {}".format(ul, clGetDeviceInfo(d, ul)))
                 print("    Extensions: %s" % ", ".join(d.extensions))
