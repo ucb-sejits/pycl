@@ -1106,7 +1106,7 @@ class cl_platform(void_p):
         """
         One of 'FULL_PROFILE' or 'EMBEDDED_PROFILE'.
         """
-        return clGetPlatformInfo(self, CL_PLATFORM_PROFILE)
+        return clGetPlatformInfo(self, cl_platform_info.CL_PLATFORM_PROFILE)
     @property
     def devices(self):
         """
@@ -1191,11 +1191,11 @@ class cl_device(void_p):
     def driver_version(self):
         # Defined here because it doesn't start with "CL_DEVICE_",
         # so the for-loop can't handle it.
-        return clGetDeviceInfo(self, CL_DRIVER_VERSION)
+        return clGetDeviceInfo(self, cl_device_info.CL_DRIVER_VERSION)
     @property
     def extensions(self):
         # Split extension list into an actual list.
-        return clGetDeviceInfo(self, CL_DEVICE_EXTENSIONS).split()
+        return clGetDeviceInfo(self, cl_device_info.CL_DEVICE_EXTENSIONS).split()
 
 # Laziness on my part. There are a *lot* of cl_device_info constants
 # representing possible inputs to clGetDeviceInfo. There should be
@@ -1263,12 +1263,12 @@ _device_info_bools = frozenset((CL_DEVICE_IMAGE_SUPPORT,
                                 CL_DEVICE_AVAILABLE,
                                 CL_DEVICE_COMPILER_AVAILABLE))
 
-_device_info_strings = frozenset((CL_DEVICE_NAME,
+_device_info_strings = frozenset((cl_device_info.CL_DEVICE_NAME,
                                   CL_DEVICE_VENDOR,
-                                  CL_DRIVER_VERSION,
+                                  cl_device_info.CL_DRIVER_VERSION,
                                   CL_DEVICE_PROFILE,
                                   CL_DEVICE_VERSION,
-                                  CL_DEVICE_EXTENSIONS))
+                                  cl_device_info.CL_DEVICE_EXTENSIONS))
 
 @_wrapdll(cl_device, cl_device_info, size_t, void_p, P(size_t))
 def clGetDeviceInfo(device, param_name):
@@ -1280,10 +1280,10 @@ def clGetDeviceInfo(device, param_name):
     you, so you should probably use those instead of calling this directly.
 
     >>> d = clGetDeviceIDs()[0]
-    >>> clGetDeviceInfo(d, CL_DEVICE_NAME)  # doctest: +ELLIPSIS
+    >>> clGetDeviceInfo(d, cl_device_info.CL_DEVICE_NAME)  # doctest: +ELLIPSIS
     '...'
-    >>> clGetDeviceInfo(d, CL_DEVICE_TYPE)  # doctest: +ELLIPSIS
-    CL_DEVICE_TYPE_...
+    >>> clGetDeviceInfo(d, cl_device_info.CL_DEVICE_TYPE)  # doctest: +ELLIPSIS
+    cl_device_info.CL_DEVICE_TYPE_...
     >>> d.available
     True
     >>> d.max_work_item_sizes               # doctest: +ELLIPSIS
@@ -1292,13 +1292,13 @@ def clGetDeviceInfo(device, param_name):
     Note that :const:`~cl_device_info.CL_DEVICE_EXTENSIONS` returns a
     string while the :attr:`extensions` attribute returns a list:
 
-    >>> clGetDeviceInfo(d, CL_DEVICE_EXTENSIONS)  # doctest: +ELLIPSIS
+    >>> clGetDeviceInfo(d, cl_device_info.CL_DEVICE_EXTENSIONS)  # doctest: +ELLIPSIS
     '...'
     >>> d.extensions                              # doctest: +ELLIPSIS
     [...]
 
     """
-    if param_name == CL_DEVICE_TYPE:
+    if param_name == cl_device_info.CL_DEVICE_TYPE:
         param_value = cl_device_type()
         clGetDeviceInfo.call(device, param_name, sizeof(param_value),
                              byref(param_value), None)
