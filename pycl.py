@@ -1391,7 +1391,7 @@ class cl_context(void_p):
         """
         try: return self._platform
         except AttributeError:
-            return clGetContextInfo(self, CL_CONTEXT_PLATFORM)
+            return clGetContextInfo(self, cl_context_info.CL_CONTEXT_PLATFORM)
     @property
     def reference_count(self):
         """
@@ -1399,13 +1399,13 @@ class cl_context(void_p):
         Using :func:`clReleaseContext` via pycl is an excellent way to
         generate segmentation faults.
         """
-        return clGetContextInfo(self, CL_CONTEXT_REFERENCE_COUNT)
+        return clGetContextInfo(self, cl_context_info.CL_CONTEXT_REFERENCE_COUNT)
     @property
     def num_devices(self):
         """
         Number of devices present in this particular context. (int)
         """
-        return clGetContextInfo(self, CL_CONTEXT_NUM_DEVICES)
+        return clGetContextInfo(self, cl_context_info.CL_CONTEXT_NUM_DEVICES)
     @property
     def devices(self):
         """
@@ -1414,13 +1414,13 @@ class cl_context(void_p):
         """
         try: return self._context
         except AttributeError:
-            return clGetContextInfo(self, CL_CONTEXT_DEVICES)
+            return clGetContextInfo(self, cl_context_info.CL_CONTEXT_DEVICES)
     @property
     def properties(self):
         """
         Low-level ctypes array that is probably not user-interpretable.
         """
-        return clGetContextInfo(self, CL_CONTEXT_PROPERTIES)
+        return clGetContextInfo(self, cl_context_info.CL_CONTEXT_PROPERTIES)
     def __repr__(self):
         try:
             plat = self.platform.name
@@ -1464,7 +1464,7 @@ def clCreateContext(devices=None, platform=None, other_props=None):
             platform = devices[0].platform
         else:
             platform = clGetPlatformIDs()[0]
-    properties[CL_CONTEXT_PLATFORM] = platform
+    properties[cl_context_info.CL_CONTEXT_PLATFORM] = platform
     if other_props:
         properties.update(other_props)
     if devices is None:
@@ -1487,7 +1487,7 @@ def clCreateContext(devices=None, platform=None, other_props=None):
         device_array[i] = d
     ctx = clCreateContext.call(props, len(devices), device_array,
                                None, None, byref(cl_errnum()))
-    if clGetContextInfo(ctx, CL_CONTEXT_REFERENCE_COUNT) < 1:
+    if clGetContextInfo(ctx, cl_context_info.CL_CONTEXT_REFERENCE_COUNT) < 1:
         raise ValueError("Unusable context")
     return ctx
 
@@ -1524,7 +1524,7 @@ def clCreateContextFromType(device_type=cl_device_type.CL_DEVICE_TYPE_DEFAULT,
             return ctx
         else:
             raise ValueError("Could not create suitable context")
-    properties[CL_CONTEXT_PLATFORM] = platform
+    properties[cl_context_info.CL_CONTEXT_PLATFORM] = platform
     if other_props:
         properties.update(other_props)
     props = (cl_context_properties*(2*len(properties)+1))()
@@ -1537,7 +1537,7 @@ def clCreateContextFromType(device_type=cl_device_type.CL_DEVICE_TYPE_DEFAULT,
     props[2*len(properties)] = 0
     ctx = clCreateContextFromType.call(props, device_type,
                                        None, None, byref(cl_errnum()))
-    if clGetContextInfo(ctx, CL_CONTEXT_REFERENCE_COUNT) < 1:
+    if clGetContextInfo(ctx, cl_context_info.CL_CONTEXT_REFERENCE_COUNT) < 1:
         raise ValueError("Unusable context")
     return ctx
 
@@ -1553,7 +1553,7 @@ def clGetContextInfo(context, param_name):
     you, so you should probably use those instead of calling this directly.
 
     >>> ctx = clCreateContext()
-    >>> clGetContextInfo(ctx, CL_CONTEXT_DEVICES) # doctest: +ELLIPSIS
+    >>> clGetContextInfo(ctx, cl_context_info.CL_CONTEXT_DEVICES) # doctest: +ELLIPSIS
     (<cl_device ...>...)
     >>> ctx.platform # doctest: +ELLIPSIS
     <cl_platform ...>
@@ -1562,7 +1562,7 @@ def clGetContextInfo(context, param_name):
     >>> ctx.properties # doctest: +ELLIPSIS
     <...cl_context_properties_Array...>
     """
-    if param_name == CL_CONTEXT_DEVICES:
+    if param_name == cl_context_info.CL_CONTEXT_DEVICES:
         try:
             return context._devices
         except AttributeError:
@@ -1573,7 +1573,7 @@ def clGetContextInfo(context, param_name):
             clGetContextInfo.call(context, param_name, sz, dev_array, None)
             context._devices = tuple(x for x in dev_array)
             return context._devices
-    elif param_name == CL_CONTEXT_PROPERTIES:
+    elif param_name == cl_context_info.CL_CONTEXT_PROPERTIES:
         sz = size_t()
         clGetContextInfo.call(context, param_name, 0, None, byref(sz))
         num_props = sz.value//sizeof(cl_context_properties)
@@ -1581,28 +1581,28 @@ def clGetContextInfo(context, param_name):
         clGetContextInfo.call(context, param_name, sz, props, None)
         # TODO
         # It's not entirely clear how we should present the result object
-        # to the user, since other than CL_CONTEXT_PLATFORM the possible
+        # to the user, since other than cl_context_info.CL_CONTEXT_PLATFORM the possible
         # values are all extension-dependent. For now, just return it.
         return props
-    elif param_name == CL_CONTEXT_PLATFORM:
+    elif param_name == cl_context_info.CL_CONTEXT_PLATFORM:
         # Not actually a valid input, but it should probably be
         # available in the properties list.
         try:
             return context._platform
         except AttributeError:
-            props = clGetContextInfo(context, CL_CONTEXT_PROPERTIES)
+            props = clGetContextInfo(context, cl_context_info.CL_CONTEXT_PROPERTIES)
             for i in range(0, len(props)-1, 2):
-                if props[i].value == CL_CONTEXT_PLATFORM.value:
+                if props[i].value == cl_context_info.CL_CONTEXT_PLATFORM.value:
                     context._platform = cl_platform(props[i+1].value)
                     break
             else:
                 context._platform = None
             return context._platform
-    elif param_name == CL_CONTEXT_NUM_DEVICES:
+    elif param_name == cl_context_info.CL_CONTEXT_NUM_DEVICES:
         # Sidestep bug in NVIDIA OpenCL driver by calculating
         # this in another fashion.
         sz = size_t()
-        clGetContextInfo.call(context, CL_CONTEXT_DEVICES, 0, None, byref(sz))
+        clGetContextInfo.call(context, cl_context_info.CL_CONTEXT_DEVICES, 0, None, byref(sz))
         return sz.value//sizeof(cl_device)
     else:
         param_value = cl_uint()
