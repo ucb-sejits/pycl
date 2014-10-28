@@ -1635,25 +1635,25 @@ class cl_command_queue(void_p):
         """
         The context associated with the command queue. (:class:`cl_context`)
         """
-        return clGetCommandQueueInfo(self, CL_QUEUE_CONTEXT)
+        return clGetCommandQueueInfo(self, cl_context_info.CL_QUEUE_CONTEXT)
     @property
     def device(self):
         """
         The device associated with the command queue. (:class:`cl_device`)
         """
-        return clGetCommandQueueInfo(self, CL_QUEUE_DEVICE)
+        return clGetCommandQueueInfo(self, cl_context_info.CL_QUEUE_DEVICE)
     @property
     def properties(self):
         """
         Command queue property bitfield. (:class:`cl_command_queue_properties`)
         """
-        return clGetCommandQueueInfo(self, CL_QUEUE_PROPERTIES)
+        return clGetCommandQueueInfo(self, cl_context_info.CL_QUEUE_PROPERTIES)
     @property
     def reference_count(self):
         """
         Reference count for OpenCL's garbage collector. (int)
         """
-        return clGetCommandQueueInfo(self, CL_QUEUE_REFERENCE_COUNT)
+        return clGetCommandQueueInfo(self, cl_context_info.CL_QUEUE_REFERENCE_COUNT)
     def __repr__(self):
         try:
             dev = self.device
@@ -1706,7 +1706,7 @@ def clGetCommandQueueInfo(queue, param_name):
     >>> q.reference_count
     1
     """
-    if param_name == CL_QUEUE_CONTEXT:
+    if param_name == cl_context_info.CL_QUEUE_CONTEXT:
         param_value = cl_context()
         clGetCommandQueueInfo.call(queue, param_name, sizeof(param_value),
                                    byref(param_value), None)
@@ -1714,17 +1714,17 @@ def clGetCommandQueueInfo(queue, param_name):
         # so we need to do that.
         clRetainContext(param_value)
         return param_value
-    elif param_name == CL_QUEUE_DEVICE:
+    elif param_name == cl_context_info.CL_QUEUE_DEVICE:
         param_value = cl_device()
         clGetCommandQueueInfo.call(queue, param_name, sizeof(param_value),
                                    byref(param_value), None)
         return param_value
-    elif param_name == CL_QUEUE_PROPERTIES:
+    elif param_name == cl_context_info.CL_QUEUE_PROPERTIES:
         param_value = cl_command_queue_properties()
         clGetCommandQueueInfo.call(queue, param_name, sizeof(param_value),
                                    byref(param_value), None)
         return param_value
-    elif param_name == CL_QUEUE_REFERENCE_COUNT:
+    elif param_name == cl_context_info.CL_QUEUE_REFERENCE_COUNT:
         param_value = cl_uint()
         clGetCommandQueueInfo.call(queue, param_name, sizeof(param_value),
                                    byref(param_value), None)
