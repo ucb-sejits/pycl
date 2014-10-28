@@ -1245,29 +1245,29 @@ def clGetDeviceIDs(platform=None,
 
 _device_info_sizes = frozenset((cl_device_info.CL_DEVICE_MAX_WORK_GROUP_SIZE,
                                 cl_device_info.CL_DEVICE_IMAGE2D_MAX_WIDTH,
-                                CL_DEVICE_IMAGE2D_MAX_HEIGHT,
-                                CL_DEVICE_IMAGE3D_MAX_WIDTH,
-                                CL_DEVICE_IMAGE3D_MAX_DEPTH,
-                                CL_DEVICE_MAX_PARAMETER_SIZE,
-                                CL_DEVICE_PROFILING_TIMER_RESOLUTION))
+                                cl_device_info.CL_DEVICE_IMAGE2D_MAX_HEIGHT,
+                                cl_device_info.CL_DEVICE_IMAGE3D_MAX_WIDTH,
+                                cl_device_info.CL_DEVICE_IMAGE3D_MAX_DEPTH,
+                                cl_device_info.CL_DEVICE_MAX_PARAMETER_SIZE,
+                                cl_device_info.CL_DEVICE_PROFILING_TIMER_RESOLUTION))
 
-_device_info_ulongs = frozenset((CL_DEVICE_MAX_MEM_ALLOC_SIZE,
-                                 CL_DEVICE_GLOBAL_MEM_CACHE_SIZE,
-                                 CL_DEVICE_GLOBAL_MEM_SIZE,
-                                 CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE,
-                                 CL_DEVICE_LOCAL_MEM_SIZE))
+_device_info_ulongs = frozenset((cl_device_info.CL_DEVICE_MAX_MEM_ALLOC_SIZE,
+                                 cl_device_info.CL_DEVICE_GLOBAL_MEM_CACHE_SIZE,
+                                 cl_device_info.CL_DEVICE_GLOBAL_MEM_SIZE,
+                                 cl_device_info.CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE,
+                                 cl_device_info.CL_DEVICE_LOCAL_MEM_SIZE))
 
-_device_info_bools = frozenset((CL_DEVICE_IMAGE_SUPPORT,
-                                CL_DEVICE_HOST_UNIFIED_MEMORY,
-                                CL_DEVICE_ENDIAN_LITTLE,
-                                CL_DEVICE_AVAILABLE,
-                                CL_DEVICE_COMPILER_AVAILABLE))
+_device_info_bools = frozenset((cl_device_info.CL_DEVICE_IMAGE_SUPPORT,
+                                cl_device_info.CL_DEVICE_HOST_UNIFIED_MEMORY,
+                                cl_device_info.CL_DEVICE_ENDIAN_LITTLE,
+                                cl_device_info.CL_DEVICE_AVAILABLE,
+                                cl_device_info.CL_DEVICE_COMPILER_AVAILABLE))
 
 _device_info_strings = frozenset((cl_device_info.CL_DEVICE_NAME,
-                                  CL_DEVICE_VENDOR,
+                                  cl_device_info.CL_DEVICE_VENDOR,
                                   cl_device_info.CL_DRIVER_VERSION,
-                                  CL_DEVICE_PROFILE,
-                                  CL_DEVICE_VERSION,
+                                  cl_device_info.CL_DEVICE_PROFILE,
+                                  cl_device_info.CL_DEVICE_VERSION,
                                   cl_device_info.CL_DEVICE_EXTENSIONS))
 
 @_wrapdll(cl_device, cl_device_info, size_t, void_p, P(size_t))
@@ -1327,22 +1327,22 @@ def clGetDeviceInfo(device, param_name):
             return str(param_value.value, 'utf-8')
         else:
             return param_value.value
-    elif param_name == CL_DEVICE_SINGLE_FP_CONFIG:
+    elif param_name == cl_device_info.CL_DEVICE_SINGLE_FP_CONFIG:
         param_value = cl_device_fp_config()
         clGetDeviceInfo.call(device, param_name, sizeof(param_value),
                              byref(param_value), None)
         return param_value
-    elif param_name == CL_DEVICE_GLOBAL_MEM_CACHE_TYPE:
+    elif param_name == cl_device_info.CL_DEVICE_GLOBAL_MEM_CACHE_TYPE:
         param_value = cl_device_mem_cache_type()
         clGetDeviceInfo.call(device, param_name, sizeof(param_value),
                              byref(param_value), None)
         return param_value
-    elif param_name == CL_DEVICE_LOCAL_MEM_TYPE:
+    elif param_name == cl_device_info.CL_DEVICE_LOCAL_MEM_TYPE:
         param_value = cl_device_local_mem_type()
         clGetDeviceInfo.call(device, param_name, sizeof(param_value),
                              byref(param_value), None)
         return param_value
-    elif param_name == CL_DEVICE_MAX_WORK_ITEM_SIZES:
+    elif param_name == cl_device_info.CL_DEVICE_MAX_WORK_ITEM_SIZES:
         sz = size_t()
         clGetDeviceInfo.call(device, param_name, 0, None, byref(sz))
         nd = sz.value // sizeof(size_t)
@@ -1350,17 +1350,17 @@ def clGetDeviceInfo(device, param_name):
         clGetDeviceInfo.call(device, param_name, sz,
                              byref(param_value), None)
         return tuple(int(x) for x in param_value)
-    elif param_name == CL_DEVICE_EXECUTION_CAPABILITIES:
+    elif param_name == cl_device_info.CL_DEVICE_EXECUTION_CAPABILITIES:
         param_value = cl_device_exec_capabilities()
         clGetDeviceInfo.call(device, param_name, sizeof(param_value),
                              byref(param_value), None)
         return param_value
-    elif param_name == CL_DEVICE_QUEUE_PROPERTIES:
+    elif param_name == cl_device_info.CL_DEVICE_QUEUE_PROPERTIES:
         param_value = cl_command_queue_properties()
         clGetDeviceInfo.call(device, param_name, sizeof(param_value),
                              byref(param_value), None)
         return param_value
-    elif param_name == CL_DEVICE_PLATFORM:
+    elif param_name == cl_device_info.CL_DEVICE_PLATFORM:
         param_value = cl_platform()
         clGetDeviceInfo.call(device, param_name, sizeof(param_value),
                              byref(param_value), None)
