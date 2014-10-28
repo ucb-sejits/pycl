@@ -848,7 +848,7 @@ def _result_errcheck(result, func, args):
 
     This is the default error checker when using _wrapdll
     """
-    if result != CL_SUCCESS:
+    if result != cl_errnum.CL_SUCCESS:
         raise cl_errnum._errors[result]
     return result
 
@@ -866,7 +866,7 @@ def _lastarg_errcheck(result, func, args):
     else:
         # In PyPy, the byref object is an actual pointer.
         status = lastarg[0]
-    if status != CL_SUCCESS:
+    if status != cl_errnum.CL_SUCCESS:
         raise cl_errnum._errors[status]
     return result
 
@@ -938,13 +938,13 @@ class cl_event(void_p):
         """The queue this event was emitted from."""
         try: return self._queue
         except AttributeError:
-            return clGetEventInfo(self, CL_EVENT_COMMAND_QUEUE)
+            return clGetEventInfo(self, cl_event_info.CL_EVENT_COMMAND_QUEUE)
     @property
     def context(self):
         """The context this event exists within."""
         try: return self._context
         except AttributeError:
-            return clGetEventInfo(self, CL_EVENT_CONTEXT)
+            return clGetEventInfo(self, cl_event_info.CL_EVENT_CONTEXT)
     @property
     def type(self):
         """
@@ -953,18 +953,18 @@ class cl_event(void_p):
         """
         try: return self._type
         except AttributeError:
-            return clGetEventInfo(self, CL_EVENT_COMMAND_TYPE)
+            return clGetEventInfo(self, cl_event_info.CL_EVENT_COMMAND_TYPE)
     @property
     def status(self):
         """
         Execution status of the command the event is linked to.
         See :class:`cl_command_exec_status`.
         """
-        return clGetEventInfo(self, CL_EVENT_COMMAND_EXECUTION_STATUS)
+        return clGetEventInfo(self, cl_event_info.CL_EVENT_COMMAND_EXECUTION_STATUS)
     @property
     def reference_count(self):
         """Reference count for OpenCL garbage collection."""
-        return clGetEventInfo(self, CL_EVENT_REFERENCE_COUNT)
+        return clGetEventInfo(self, cl_event_info.CL_EVENT_REFERENCE_COUNT)
     def wait(self):
         """Blocks until this event completes."""
         clWaitForEvents(self)
@@ -1017,7 +1017,7 @@ def clGetEventInfo(event, param_name):
     the properties of the event object, which in turn will
     call this function.
     """
-    if param_name == CL_EVENT_COMMAND_QUEUE:
+    if param_name == cl_event_info.CL_EVENT_COMMAND_QUEUE:
         try:
             return event._queue
         except AttributeError:
@@ -1027,7 +1027,7 @@ def clGetEventInfo(event, param_name):
             clRetainCommandQueue(param_value)
             event._queue = param_value
             return param_value
-    elif param_name == CL_EVENT_CONTEXT:
+    elif param_name == cl_event_info.CL_EVENT_CONTEXT:
         try:
             return event._context
         except AttributeError:
@@ -1037,7 +1037,7 @@ def clGetEventInfo(event, param_name):
             clRetainContext(param_value)
             event._context = param_value
             return param_value
-    elif param_name == CL_EVENT_COMMAND_TYPE:
+    elif param_name == cl_event_info.CL_EVENT_COMMAND_TYPE:
         try:
             return event._type
         except AttributeError:
@@ -1046,12 +1046,12 @@ def clGetEventInfo(event, param_name):
                                 byref(param_value), None)
             event._type = param_value
             return param_value
-    elif param_name == CL_EVENT_COMMAND_EXECUTION_STATUS:
+    elif param_name == cl_event_info.CL_EVENT_COMMAND_EXECUTION_STATUS:
         param_value = cl_command_execution_status()
         clGetEventInfo.call(event, param_name, sizeof(param_value),
                             byref(param_value), None)
         return param_value
-    elif param_name == CL_EVENT_REFERENCE_COUNT:
+    elif param_name == cl_event_info.CL_EVENT_REFERENCE_COUNT:
         param_value = cl_uint()
         clGetEventInfo.call(event, param_name, sizeof(param_value),
                             byref(param_value), None)
@@ -1080,19 +1080,19 @@ class cl_platform(void_p):
         """
         Name of the platform. (str)
         """
-        return clGetPlatformInfo(self, CL_PLATFORM_NAME)
+        return clGetPlatformInfo(self, cl_platform_info.CL_PLATFORM_NAME)
     @property
     def vendor(self):
         """
         Vendor that distributes the platform. (str)
         """
-        return clGetPlatformInfo(self, CL_PLATFORM_VENDOR)
+        return clGetPlatformInfo(self, cl_platform_info.CL_PLATFORM_VENDOR)
     @property
     def version(self):
         """
         Platform version. Likely starts with 'OpenCL 1.1'. (str)
         """
-        return clGetPlatformInfo(self, CL_PLATFORM_VERSION)
+        return clGetPlatformInfo(self, cl_platform_info.CL_PLATFORM_VERSION)
     @property
     def extensions(self):
         """
@@ -1100,7 +1100,7 @@ class cl_platform(void_p):
         Note that devices have their own set of extensions which
         should be inspected separately.
         """
-        return clGetPlatformInfo(self, CL_PLATFORM_EXTENSIONS).split()
+        return clGetPlatformInfo(self, cl_platform_info.CL_PLATFORM_EXTENSIONS).split()
     @property
     def profile(self):
         """
@@ -1144,7 +1144,7 @@ def clGetPlatformInfo(platform, param_name):
     you, so you should probably use those instead of calling this directly.
 
     >>> plat = clGetPlatformIDs()[0]
-    >>> clGetPlatformInfo(plat, CL_PLATFORM_VERSION) # doctest: +ELLIPSIS
+    >>> clGetPlatformInfo(plat, cl_platform_info.CL_PLATFORM_VERSION) # doctest: +ELLIPSIS
     'OpenCL ...'
     >>> plat.version # doctest: +ELLIPSIS
     'OpenCL ...'
@@ -1152,7 +1152,7 @@ def clGetPlatformInfo(platform, param_name):
     Note that :const:`~cl_platform_info.CL_PLATFORM_EXTENSIONS` returns a
     string while the :attr:`extensions` attribute returns a list:
 
-    >>> clGetPlatformInfo(plat, CL_PLATFORM_EXTENSIONS)  # doctest: +ELLIPSIS
+    >>> clGetPlatformInfo(plat, cl_platform_info.CL_PLATFORM_EXTENSIONS)  # doctest: +ELLIPSIS
     '...'
     >>> plat.extensions                              # doctest: +ELLIPSIS
     [...]
@@ -1243,8 +1243,8 @@ def clGetDeviceIDs(platform=None,
 # Anything not handled identified in one of these sets or in
 # a special case in the wrapper function is assumed to return a cl_uint.
 
-_device_info_sizes = frozenset((CL_DEVICE_MAX_WORK_GROUP_SIZE,
-                                CL_DEVICE_IMAGE2D_MAX_WIDTH,
+_device_info_sizes = frozenset((cl_device_info.CL_DEVICE_MAX_WORK_GROUP_SIZE,
+                                cl_device_info.CL_DEVICE_IMAGE2D_MAX_WIDTH,
                                 CL_DEVICE_IMAGE2D_MAX_HEIGHT,
                                 CL_DEVICE_IMAGE3D_MAX_WIDTH,
                                 CL_DEVICE_IMAGE3D_MAX_DEPTH,
@@ -3025,7 +3025,7 @@ def _make_all():
 _make_all()
 
 
-def show_all():
+def main():
     import sys
     if '--doctest' in sys.argv:
         import doctest
@@ -3057,4 +3057,4 @@ def show_all():
 
 
 if __name__ == '__main__':
-    show_all()
+    main()
