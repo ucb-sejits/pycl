@@ -1761,15 +1761,15 @@ class cl_mem(void_p):
         """Memory size, in bytes."""
         try: return self._size
         except AttributeError:
-            return clGetMemObjectInfo(self, CL_MEM_SIZE)
+            return clGetMemObjectInfo(self, cl_mem_info.CL_MEM_SIZE)
     @property
     def reference_count(self):
         """Reference count for OpenCL garbage collector."""
-        return clGetMemObjectInfo(self, CL_MEM_REFERENCE_COUNT)
+        return clGetMemObjectInfo(self, cl_mem_info.CL_MEM_REFERENCE_COUNT)
     @property
     def map_count(self):
         """Number of memory maps currently active for this object."""
-        return clGetMemObjectInfo(self, CL_MEM_MAP_COUNT)
+        return clGetMemObjectInfo(self, cl_mem_info.CL_MEM_MAP_COUNT)
     @property
     def hostptr(self):
         """Pointer to host address associated with this memory
@@ -1777,23 +1777,23 @@ class cl_mem(void_p):
         on the flags. (type is :c:type:`void*`)"""
         try: return self._hostptr
         except AttributeError:
-            return clGetMemObjectInfo(self, CL_MEM_HOST_PTR)
+            return clGetMemObjectInfo(self, cl_mem_info.CL_MEM_HOST_PTR)
     @property
     def flags(self):
         """The :class:`cl_mem_flags` the object was created with."""
-        return clGetMemObjectInfo(self, CL_MEM_FLAGS)
+        return clGetMemObjectInfo(self, cl_mem_info.CL_MEM_FLAGS)
     @property
     def type(self):
         """The :class:`cl_mem_type` of the object."""
         try: return self._type
         except AttributeError:
-            return clGetMemObjectInfo(self, CL_MEM_TYPE)
+            return clGetMemObjectInfo(self, cl_mem_info.CL_MEM_TYPE)
     @property
     def context(self):
         """The :class:`cl_context` the memory belongs to."""
         try: return self._context
         except AttributeError:
-            return clGetMemObjectInfo(self, CL_MEM_CONTEXT)
+            return clGetMemObjectInfo(self, cl_mem_info.CL_MEM_CONTEXT)
     def __del__(self):
         try:
             if self:
@@ -1815,13 +1815,13 @@ class cl_buffer(cl_mem):
         """Base memory object (for sub-buffers)"""
         try: return self._base
         except AttributeError:
-            return clGetMemObjectInfo(self, CL_MEM_ASSOCIATED_MEMOBJECT)
+            return clGetMemObjectInfo(self, cl_mem_info.CL_MEM_ASSOCIATED_MEMOBJECT)
     @property
     def offset(self):
         """Offset, in bytes, from origin (for sub-buffers)"""
         try: return self._offset
         except AttributeError:
-            return clGetMemObjectInfo(self, CL_MEM_OFFSET)
+            return clGetMemObjectInfo(self, cl_mem_info.CL_MEM_OFFSET)
 
 class cl_image(cl_mem):
     """
@@ -1832,42 +1832,42 @@ class cl_image(cl_mem):
     def format(self):
         try: return self._format
         except AttributeError:
-            return clGetImageInfo(self, CL_IMAGE_FORMAT)
+            return clGetImageInfo(self, cl_image_info.CL_IMAGE_FORMAT)
     @property
     def element_size(self):
         try: return self._element_size
         except AttributeError:
-            self._element_size = clGetImageInfo(self, CL_IMAGE_ELEMENT_SIZE)
+            self._element_size = clGetImageInfo(self, cl_image_info.CL_IMAGE_ELEMENT_SIZE)
             return self._element_size
     @property
     def row_pitch(self):
         try: return self._row_pitch
         except AttributeError:
-            self._row_pitch = clGetImageInfo(self, CL_IMAGE_ROW_PITCH)
+            self._row_pitch = clGetImageInfo(self, cl_image_info.CL_IMAGE_ROW_PITCH)
             return self._row_pitch
     @property
     def slice_pitch(self):
         try: return self._slice_pitch
         except AttributeError:
-            self._slice_pitch = clGetImageInfo(self, CL_IMAGE_SLICE_PITCH)
+            self._slice_pitch = clGetImageInfo(self, cl_image_info.CL_IMAGE_SLICE_PITCH)
             return self._slice_pitch
     @property
     def width(self):
         try: return self._width
         except AttributeError:
-            self._width = clGetImageInfo(self, CL_IMAGE_WIDTH)
+            self._width = clGetImageInfo(self, cl_image_info.CL_IMAGE_WIDTH)
             return self._width
     @property
     def height(self):
         try: return self._height
         except AttributeError:
-            self._height = clGetImageInfo(self, CL_IMAGE_HEIGHT)
+            self._height = clGetImageInfo(self, cl_image_info.CL_IMAGE_HEIGHT)
             return self._height
     @property
     def depth(self):
         try: return self._depth
         except AttributeError:
-            self._depth = clGetImageInfo(self, CL_IMAGE_DEPTH)
+            self._depth = clGetImageInfo(self, cl_image_info.CL_IMAGE_DEPTH)
             return self._depth
     def empty_like_this(self):
         if self.type == cl_mem_object_type.CL_MEM_OBJECT_IMAGE2D:
@@ -1948,7 +1948,7 @@ def clEnqueueReadBuffer(queue, mem, pointer, size=None,
     [0, 1, 2, 3, 4, 5, 6, 7]
     """
     if size is None:
-        size = clGetMemObjectInfo(mem, CL_MEM_SIZE)
+        size = clGetMemObjectInfo(mem, cl_mem_info.CL_MEM_SIZE)
     nevents, wait_array = _make_event_array(wait_for)
     out_event = cl_event()
     clEnqueueReadBuffer.call(queue, mem, blocking, offset, size, pointer,
@@ -1965,7 +1965,7 @@ def clEnqueueWriteBuffer(queue, mem, pointer, size=None,
     See :func:`clEnqueueReadBuffer` for the meanings of the parameters.
     """
     if size is None:
-        size = clGetMemObjectInfo(mem, CL_MEM_SIZE)
+        size = clGetMemObjectInfo(mem, cl_mem_info.CL_MEM_SIZE)
     nevents, wait_array = _make_event_array(wait_for)
     out_event = cl_event()
     clEnqueueWriteBuffer.call(queue, mem, blocking, offset, size, pointer,
@@ -1977,7 +1977,7 @@ def clEnqueueWriteBuffer(queue, mem, pointer, size=None,
 def clEnqueueCopyBuffer(queue, src_buffer, dst_buffer, src_offset=0, dst_offset=0,
                         size=None, wait_for=None):
     if size is None:
-        size = clGetMemObjectInfo(dst_buffer, CL_MEM_SIZE)
+        size = clGetMemObjectInfo(dst_buffer, cl_mem_info.CL_MEM_SIZE)
     nevents, wait_array = _make_event_array(wait_for)
     out_event = cl_event()
     clEnqueueCopyBuffer.call(queue, src_buffer, dst_buffer, src_offset, dst_offset,
@@ -1994,7 +1994,7 @@ def clGetMemObjectInfo(mem, param_name):
     Memory objects have properties that will retrieve these
     values for you, so you should probably use those.
     """
-    if param_name == CL_MEM_TYPE:
+    if param_name == cl_mem_info.CL_MEM_TYPE:
         try: return mem._type
         except AttributeError:
             param_value = cl_mem_object_type()
@@ -2002,12 +2002,12 @@ def clGetMemObjectInfo(mem, param_name):
                                     byref(param_value), None)
             mem._type = param_value
             return param_value
-    elif param_name == CL_MEM_FLAGS:
+    elif param_name == cl_mem_info.CL_MEM_FLAGS:
         param_value = cl_mem_flags()
         clGetMemObjectInfo.call(mem, param_name, sizeof(param_value),
                                 byref(param_value), None)
         return param_value
-    elif param_name == CL_MEM_SIZE:
+    elif param_name == cl_mem_info.CL_MEM_SIZE:
         try: return mem._size
         except AttributeError:
             param_value = size_t()
@@ -2015,18 +2015,18 @@ def clGetMemObjectInfo(mem, param_name):
                                     byref(param_value), None)
             mem._size = int(param_value.value)
             return mem._size
-    elif param_name == CL_MEM_OFFSET:
+    elif param_name == cl_mem_info.CL_MEM_OFFSET:
         param_value = size_t()
         clGetMemObjectInfo.call(mem, param_name, sizeof(param_value),
                                 byref(param_value), None)
         mem._offset = int(param_value.value)
         return mem._offset
-    elif param_name in (CL_MEM_MAP_COUNT, CL_MEM_REFERENCE_COUNT):
+    elif param_name in (cl_mem_info.CL_MEM_MAP_COUNT, cl_mem_info.CL_MEM_REFERENCE_COUNT):
         param_value = cl_uint()
         clGetMemObjectInfo.call(mem, param_name, sizeof(param_value),
                                 byref(param_value), None)
         return int(param_value.value)
-    elif param_name == CL_MEM_ASSOCIATED_MEMOBJECT:
+    elif param_name == cl_mem_info.CL_MEM_ASSOCIATED_MEMOBJECT:
         try: return mem._base
         except AttributeError: pass
         param_value = cl_buffer()
@@ -2035,7 +2035,7 @@ def clGetMemObjectInfo(mem, param_name):
         if param_value: mem._base = param_value
         else: mem._base = None
         return mem._base
-    elif param_name == CL_MEM_CONTEXT:
+    elif param_name == cl_mem_info.CL_MEM_CONTEXT:
         try: return mem._context
         except AttributeError: pass
         param_value = cl_context()
@@ -2044,7 +2044,7 @@ def clGetMemObjectInfo(mem, param_name):
         clRetainContext(param_value)
         mem._context = param_value
         return param_value
-    elif param_name == CL_MEM_HOST_PTR:
+    elif param_name == cl_mem_info.CL_MEM_HOST_PTR:
         try: return mem._hostptr
         except AttributeError: pass
         param_value = void_p()
@@ -2122,7 +2122,7 @@ def clGetSupportedImageFormats(context=None,
 
 @_wrapdll(cl_image, cl_image_info, size_t, void_p, P(size_t))
 def clGetImageInfo(img, param_name):
-    if param_name == CL_IMAGE_FORMAT:
+    if param_name == cl_image_info.CL_IMAGE_FORMAT:
         try: return img._format
         except AttributeError:
             param_value = cl_image_format()
@@ -2130,17 +2130,17 @@ def clGetImageInfo(img, param_name):
                                 byref(param_value), None)
             img._format = param_value
             return param_value
-    elif param_name in (CL_IMAGE_ELEMENT_SIZE,
-                        CL_IMAGE_ROW_PITCH,
-                        CL_IMAGE_SLICE_PITCH,
-                        CL_IMAGE_WIDTH,
-                        CL_IMAGE_HEIGHT,
-                        CL_IMAGE_DEPTH):
+    elif param_name in (cl_image_info.CL_IMAGE_ELEMENT_SIZE,
+                        cl_image_info.CL_IMAGE_ROW_PITCH,
+                        cl_image_info.CL_IMAGE_SLICE_PITCH,
+                        cl_image_info.CL_IMAGE_WIDTH,
+                        cl_image_info.CL_IMAGE_HEIGHT,
+                        cl_image_info.CL_IMAGE_DEPTH):
         param_value = size_t()
         clGetImageInfo.call(img, param_name, sizeof(param_value),
                             byref(param_value), None)
         return int(param_value.value)
-    else: # CL_IMAGE_D3D10_SUBRESOURCE_KHR
+    else: # cl_image_info.CL_IMAGE_D3D10_SUBRESOURCE_KHR
         param_value = void_p()
         clGetImageInfo.call(img, param_name, sizeof(param_value),
                             byref(param_value), None)
