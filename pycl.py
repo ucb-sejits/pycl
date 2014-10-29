@@ -2389,7 +2389,7 @@ def clBuildProgram(program, options=None, devices=None):
     try:
         clBuildProgram.call(program, num_devices, dev_array,
                             options, None, None)
-    except BuildProgramFailureError:
+    except BuildProgramFailureError: # this exception is dynamically created
         # Re-raise with appropriate message
         for dev in devices:
             if program.build_status(dev) == cl_build_status.CL_BUILD_ERROR:
