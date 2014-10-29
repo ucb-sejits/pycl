@@ -1870,10 +1870,10 @@ class cl_image(cl_mem):
             self._depth = clGetImageInfo(self, CL_IMAGE_DEPTH)
             return self._depth
     def empty_like_this(self):
-        if self.type == CL_MEM_OBJECT_IMAGE2D:
+        if self.type == cl_mem_object_type.CL_MEM_OBJECT_IMAGE2D:
             return clCreateImage2D(self.context, self.width, self.height,
                                    self.format)
-        elif self.type == CL_MEM_OBJECT_IMAGE3D:
+        elif self.type == cl_mem_object_type.CL_MEM_OBJECT_IMAGE3D:
             return clCreateImage3D(self.context, self.width, self.height,
                                    self.depth, self.format)
         else:
@@ -1900,7 +1900,7 @@ def clCreateBuffer(context, size, flags = cl_mem_flags.CL_MEM_READ_WRITE,
     mem._context = context
     mem._base = host_ptr
     mem._flags = flags
-    mem._type = CL_MEM_OBJECT_BUFFER
+    mem._type = cl_mem_object_type.CL_MEM_OBJECT_BUFFER
     return mem
 
 @_wrapdll(cl_mem)
