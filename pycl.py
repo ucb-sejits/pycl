@@ -2190,51 +2190,51 @@ class cl_program(void_p):
         try:
             return self._context
         except AttributeError:
-            return clGetProgramInfo(self, CL_PROGRAM_CONTEXT)
+            return clGetProgramInfo(self, cl_program_build_info.CL_PROGRAM_CONTEXT)
     @property
     def reference_count(self):
         """Reference count for OpenCL garbage collector."""
-        return clGetProgramInfo(self, CL_PROGRAM_REFERENCE_COUNT)
+        return clGetProgramInfo(self, cl_program_build_info.CL_PROGRAM_REFERENCE_COUNT)
     @property
     def num_devices(self):
         """Number of devices the program exists on."""
-        return clGetProgramInfo(self, CL_PROGRAM_NUM_DEVICES)
+        return clGetProgramInfo(self, cl_program_build_info.CL_PROGRAM_NUM_DEVICES)
     @property
     def devices(self):
         """Devices on which the program exists."""
-        return clGetProgramInfo(self, CL_PROGRAM_DEVICES)
+        return clGetProgramInfo(self, cl_program_build_info.CL_PROGRAM_DEVICES)
     @property
     def source(self):
         """Program's source code, if available."""
-        return clGetProgramInfo(self, CL_PROGRAM_SOURCE)
+        return clGetProgramInfo(self, cl_program_build_info.CL_PROGRAM_SOURCE)
     @property
     def binary_sizes(self):
         """Sizes, in bytes, of the binaries for each of the
         devices the program is compiled for."""
-        return clGetProgramInfo(self, CL_PROGRAM_BINARY_SIZES)
+        return clGetProgramInfo(self, cl_program_build_info.CL_PROGRAM_BINARY_SIZES)
     @property
     def binaries(self):
         """Acquires the binaries for each device."""
-        return clGetProgramInfo(self, CL_PROGRAM_BINARIES)
+        return clGetProgramInfo(self, cl_program_build_info.CL_PROGRAM_BINARIES)
     def build_status(self, device=None):
         """
         Retrieves the :class:`cl_program_build_status` for one of more devices.
         See also :func:`clGetProgramBuildInfo`
         """
-        return clGetProgramBuildInfo(self, CL_PROGRAM_BUILD_STATUS, device)
+        return clGetProgramBuildInfo(self, cl_program_build_info.CL_PROGRAM_BUILD_STATUS, device)
     def build_options(self, device=None):
         """
         Retrieves the build options, as a string, for one of more devices.
         See also :func:`clGetProgramBuildInfo`.
         """
-        return clGetProgramBuildInfo(self, CL_PROGRAM_BUILD_OPTIONS, device)
+        return clGetProgramBuildInfo(self, cl_program_build_info.CL_PROGRAM_BUILD_OPTIONS, device)
     def build_log(self, device=None):
         """
         Returns the build log, as a string, for one or more devices.
         Mostly useful for checking compiler errors.
         See also :func:`clGetProgramBuildInfo`.
         """
-        return clGetProgramBuildInfo(self, CL_PROGRAM_BUILD_LOG, device)
+        return clGetProgramBuildInfo(self, cl_program_build_info.CL_PROGRAM_BUILD_LOG, device)
     def __del__(self):
         try:
             if self: clReleaseProgram(self)
@@ -2246,7 +2246,7 @@ def clGetProgramInfo(program, param_name):
     :param program: :class:`cl_program`
     :param param_name: One of the :class:`cl_program_info` values.
     """
-    if param_name == CL_PROGRAM_CONTEXT:
+    if param_name == cl_program_build_info.CL_PROGRAM_CONTEXT:
         try:
             return program._context
         except AttributeError:
@@ -2256,38 +2256,38 @@ def clGetProgramInfo(program, param_name):
             clRetainContext(param_value)
             program._context = param_value
             return param_value
-    elif param_name in (CL_PROGRAM_REFERENCE_COUNT,
-                        CL_PROGRAM_NUM_DEVICES):
+    elif param_name in (cl_program_build_info.CL_PROGRAM_REFERENCE_COUNT,
+                        cl_program_build_info.CL_PROGRAM_NUM_DEVICES):
         param_value = cl_uint()
         clGetProgramInfo.call(program, param_name, sizeof(param_value),
                               byref(param_value), None)
         return int(param_value.value)
-    elif param_name == CL_PROGRAM_DEVICES:
+    elif param_name == cl_program_build_info.CL_PROGRAM_DEVICES:
         sz = size_t()
         clGetProgramInfo.call(program, param_name, 0, None, byref(sz))
         nd = sz.value // sizeof(cl_device)
         param_value = (cl_device * nd)()
         clGetProgramInfo.call(program, param_name, sz, param_value, None)
         return [x for x in param_value]
-    elif param_name == CL_PROGRAM_SOURCE:
+    elif param_name == cl_program_build_info.CL_PROGRAM_SOURCE:
         sz = size_t()
         clGetProgramInfo.call(program, param_name, 0, None, byref(sz))
         param_value = create_string_buffer(sz.value)
         clGetProgramInfo.call(program, param_name, sz, param_value, None)
         return param_value.value
-    elif param_name == CL_PROGRAM_BINARY_SIZES:
+    elif param_name == cl_program_build_info.CL_PROGRAM_BINARY_SIZES:
         sz = size_t()
         clGetProgramInfo.call(program, param_name, 0, None, byref(sz))
         nd = sz.value // sizeof(size_t)
         param_value = (size_t * nd)()
         clGetProgramInfo.call(program, param_name, sz, param_value, None)
         return [int(x) for x in param_value]
-    elif param_name == CL_PROGRAM_BINARIES:
+    elif param_name == cl_program_build_info.CL_PROGRAM_BINARIES:
         sz = size_t()
         clGetProgramInfo.call(program, param_name, 0, None, byref(sz))
         nd = sz.value // sizeof(char_p)
         param_value = (char_p * nd)()
-        binary_sizes = clGetProgramInfo(program, CL_PROGRAM_BINARY_SIZES)
+        binary_sizes = clGetProgramInfo(program, cl_program_build_info.CL_PROGRAM_BINARY_SIZES)
         binaries = [None]*nd
         for i, bsize in enumerate(binary_sizes):
             binaries[i] = (ctypes.c_char * bsize)()
@@ -2320,14 +2320,14 @@ def clGetProgramBuildInfo(program, param_name, device=None):
     if not isinstance(device, cl_device):
         return [clGetProgramBuildInfo(program, param_name, each_device)
                 for each_device in program.devices]
-    if param_name == CL_PROGRAM_BUILD_STATUS:
+    if param_name == cl_program_build_info.CL_PROGRAM_BUILD_STATUS:
         param_value = cl_build_status()
         clGetProgramBuildInfo.call(program, device, param_name,
                                    sizeof(param_value),
                                    byref(param_value), None)
         return param_value
-    elif param_name in (CL_PROGRAM_BUILD_OPTIONS,
-                        CL_PROGRAM_BUILD_LOG):
+    elif param_name in (cl_program_build_info.CL_PROGRAM_BUILD_OPTIONS,
+                        cl_program_build_info.CL_PROGRAM_BUILD_LOG):
         sz = size_t()
         clGetProgramBuildInfo.call(program, device, param_name,
                                    0, None, byref(sz))
