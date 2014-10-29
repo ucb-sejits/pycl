@@ -2391,7 +2391,7 @@ def clBuildProgram(program, options=None, devices=None):
     except BuildProgramFailureError:
         # Re-raise with appropriate message
         for dev in devices:
-            if program.build_status(dev) == CL_BUILD_ERROR:
+            if program.build_status(dev) == cl_build_status.CL_BUILD_ERROR:
                 log = program.build_log(dev)
                 raise BuildProgramFailureError(log)
 
@@ -2431,32 +2431,32 @@ class cl_kernel(void_p):
         try:
             return self._name
         except AttributeError:
-            return clGetKernelInfo(self, CL_KERNEL_FUNCTION_NAME)
+            return clGetKernelInfo(self, cl_kernel_info.CL_KERNEL_FUNCTION_NAME)
     @property
     def program(self):
         """The :class:`cl_program` this kernel lives in."""
         try:
             return self._program
         except AttributeError:
-            return clGetKernelInfo(self, CL_KERNEL_PROGRAM)
+            return clGetKernelInfo(self, cl_kernel_info.CL_KERNEL_PROGRAM)
     @property
     def context(self):
         """The :class:`cl_context` this kernel lives in."""
         try:
             return self._context
         except AttributeError:
-            return clGetKernelInfo(self, CL_KERNEL_CONTEXT)
+            return clGetKernelInfo(self, cl_kernel_info.CL_KERNEL_CONTEXT)
     @property
     def num_args(self):
         """Number of arguments required to call this kernel."""
         try:
             return self._num_args
         except AttributeError:
-            return clGetKernelInfo(self, CL_KERNEL_NUM_ARGS)
+            return clGetKernelInfo(self, cl_kernel_info.CL_KERNEL_NUM_ARGS)
     @property
     def reference_count(self):
         """Reference count for OpenCL garbage collector."""
-        return clGetKernelInfo(self, CL_KERNEL_REFERENCE_COUNT)
+        return clGetKernelInfo(self, cl_kernel_info.CL_KERNEL_REFERENCE_COUNT)
 
     def __call__(self, *args, **kw):
         """
@@ -2613,21 +2613,21 @@ class cl_kernel(void_p):
         specified device.
         """
         return clGetKernelWorkGroupInfo(self,
-                            CL_KERNEL_WORK_GROUP_SIZE, device)
+                            cl_kernel_work_group_info.CL_KERNEL_WORK_GROUP_SIZE, device)
     def compile_work_group_size(self, device=None):
         """
         The work group size specified by the kernel source, if any.
         Otherwise, will return (0,0,0).
         """
         return clGetKernelWorkGroupInfo(self,
-                            CL_KERNEL_COMPILE_WORK_GROUP_SIZE, device)
+                            cl_kernel_work_group_info.CL_KERNEL_COMPILE_WORK_GROUP_SIZE, device)
     def local_mem_size(self, device=None):
         """
         The amount of local memory that would be used by this kernel
         on the given device with its current argument set.
         """
         return clGetKernelWorkGroupInfo(self,
-                            CL_KERNEL_LOCAL_MEM_SIZE, device)
+                            cl_kernel_work_group_info.CL_KERNEL_LOCAL_MEM_SIZE, device)
     def preferred_work_group_size_multiple(self, device=None):
         """
         Suggests a workgroup size multiplier for each dimension.
@@ -2635,13 +2635,13 @@ class cl_kernel(void_p):
         be multiples of 8.
         """
         return clGetKernelWorkGroupInfo(self,
-                        CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE, device)
+                        cl_kernel_work_group_info.CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE, device)
     def private_mem_size(self, device=None):
         """
         Amount of private memory needed to execute each workitem on the device.
         """
         return clGetKernelWorkGroupInfo(self,
-                            CL_KERNEL_PRIVATE_MEM_SIZE, device)
+                            cl_kernel_work_group_info.CL_KERNEL_PRIVATE_MEM_SIZE, device)
 
 
 @_wrapdll(cl_program, char_p, P(cl_errnum),
@@ -2673,19 +2673,19 @@ def clGetKernelInfo(kernel, param_name):
     Kernel objects have properties that call this function, so it
     is probably preferable to use those instead.
     """
-    if param_name == CL_KERNEL_FUNCTION_NAME:
+    if param_name == cl_kernel_info.CL_KERNEL_FUNCTION_NAME:
         sz = size_t()
         clGetKernelInfo.call(kernel, param_name, 0, None, byref(sz))
         param_value = create_string_buffer(sz.value)
         clGetKernelInfo.call(kernel, param_name, sz, param_value, None)
         return param_value.value
-    elif param_name == CL_KERNEL_CONTEXT:
+    elif param_name == cl_kernel_info.CL_KERNEL_CONTEXT:
         param_value = cl_context()
         clGetKernelInfo.call(kernel, param_name, sizeof(param_value),
                              byref(param_value), None)
         clRetainContext(param_value)
         return param_value
-    elif param_name == CL_KERNEL_PROGRAM:
+    elif param_name == cl_kernel_info.CL_KERNEL_PROGRAM:
         try:
             return kernel._program
         except AttributeError:
@@ -2695,7 +2695,7 @@ def clGetKernelInfo(kernel, param_name):
             clRetainProgram(param_value)
             kernel._program = program
             return param_value
-    elif param_name == CL_KERNEL_CONTEXT:
+    elif param_name == cl_kernel_info.CL_KERNEL_CONTEXT:
         try:
             return kernel._context
         except AttributeError:
@@ -2705,7 +2705,7 @@ def clGetKernelInfo(kernel, param_name):
             clRetainContext(param_value)
             kernel._context = context
             return param_value
-    elif param_name == CL_KERNEL_NUM_ARGS:
+    elif param_name == cl_kernel_info.CL_KERNEL_NUM_ARGS:
         try:
             return kernel._num_args
         except AttributeError:
@@ -2714,7 +2714,7 @@ def clGetKernelInfo(kernel, param_name):
                                  byref(param_value), None)
             kernel._num_args = int(param_value.value)
             return kernel._num_args
-    elif param_name == CL_KERNEL_REFERENCE_COUNT:
+    elif param_name == cl_kernel_info.CL_KERNEL_REFERENCE_COUNT:
         param_value = cl_uint()
         clGetKernelInfo.call(kernel, param_name, sizeof(param_value),
                              byref(param_value), None)
