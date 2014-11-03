@@ -43,7 +43,7 @@ you can't remember what type
 to be. They are all somewhat magical in that they'll
 make a reasonable effort to pretty-print themselves:
 
-    >>> CL_DEVICE_TYPE_GPU | CL_DEVICE_TYPE_CPU
+    >>> cl_device_type.CL_DEVICE_TYPE_GPU | cl_device_type.CL_DEVICE_TYPE_CPU
     CL_DEVICE_TYPE_CPU | CL_DEVICE_TYPE_GPU
     >>> cl_mem_info(0x1100)
     CL_MEM_TYPE
@@ -188,7 +188,7 @@ class cl_bitfield(cl_ulong):
     def __and__(self, other):
         assert isinstance(other, self.__class__)
         return self.__class__(self.value & other.value)
-    def __xor__(self):
+    def __xor__(self, other):
         assert isinstance(other, self.__class__)
         return self.__class__(self.value ^ other.value)
     def __not__(self):
@@ -836,7 +836,8 @@ else:
         # Don't care if we can load the DLL on RTD.
         _dll = None
     else:
-        raise RuntimeError('Could not locate OpenCL dll. Please set the PYCL_OPENCL environment variable to its full path.')
+        raise RuntimeError(
+            'Could not locate OpenCL dll. Please set the PYCL_OPENCL environment variable to its full path.')
 
 
 def _result_errcheck(result, func, args):
@@ -848,7 +849,7 @@ def _result_errcheck(result, func, args):
 
     This is the default error checker when using _wrapdll
     """
-    if result != CL_SUCCESS:
+    if result != cl_errnum.CL_SUCCESS:
         raise cl_errnum._errors[result]
     return result
 
@@ -866,7 +867,7 @@ def _lastarg_errcheck(result, func, args):
     else:
         # In PyPy, the byref object is an actual pointer.
         status = lastarg[0]
-    if status != CL_SUCCESS:
+    if status != cl_errnum.CL_SUCCESS:
         raise cl_errnum._errors[status]
     return result
 
@@ -938,13 +939,13 @@ class cl_event(void_p):
         """The queue this event was emitted from."""
         try: return self._queue
         except AttributeError:
-            return clGetEventInfo(self, CL_EVENT_COMMAND_QUEUE)
+            return clGetEventInfo(self, cl_event_info.CL_EVENT_COMMAND_QUEUE)
     @property
     def context(self):
         """The context this event exists within."""
         try: return self._context
         except AttributeError:
-            return clGetEventInfo(self, CL_EVENT_CONTEXT)
+            return clGetEventInfo(self, cl_event_info.CL_EVENT_CONTEXT)
     @property
     def type(self):
         """
@@ -953,18 +954,18 @@ class cl_event(void_p):
         """
         try: return self._type
         except AttributeError:
-            return clGetEventInfo(self, CL_EVENT_COMMAND_TYPE)
+            return clGetEventInfo(self, cl_event_info.CL_EVENT_COMMAND_TYPE)
     @property
     def status(self):
         """
         Execution status of the command the event is linked to.
         See :class:`cl_command_exec_status`.
         """
-        return clGetEventInfo(self, CL_EVENT_COMMAND_EXECUTION_STATUS)
+        return clGetEventInfo(self, cl_event_info.CL_EVENT_COMMAND_EXECUTION_STATUS)
     @property
     def reference_count(self):
         """Reference count for OpenCL garbage collection."""
-        return clGetEventInfo(self, CL_EVENT_REFERENCE_COUNT)
+        return clGetEventInfo(self, cl_event_info.CL_EVENT_REFERENCE_COUNT)
     def wait(self):
         """Blocks until this event completes."""
         clWaitForEvents(self)
@@ -1017,7 +1018,7 @@ def clGetEventInfo(event, param_name):
     the properties of the event object, which in turn will
     call this function.
     """
-    if param_name == CL_EVENT_COMMAND_QUEUE:
+    if param_name == cl_event_info.CL_EVENT_COMMAND_QUEUE:
         try:
             return event._queue
         except AttributeError:
@@ -1027,7 +1028,7 @@ def clGetEventInfo(event, param_name):
             clRetainCommandQueue(param_value)
             event._queue = param_value
             return param_value
-    elif param_name == CL_EVENT_CONTEXT:
+    elif param_name == cl_event_info.CL_EVENT_CONTEXT:
         try:
             return event._context
         except AttributeError:
@@ -1037,7 +1038,7 @@ def clGetEventInfo(event, param_name):
             clRetainContext(param_value)
             event._context = param_value
             return param_value
-    elif param_name == CL_EVENT_COMMAND_TYPE:
+    elif param_name == cl_event_info.CL_EVENT_COMMAND_TYPE:
         try:
             return event._type
         except AttributeError:
@@ -1046,12 +1047,12 @@ def clGetEventInfo(event, param_name):
                                 byref(param_value), None)
             event._type = param_value
             return param_value
-    elif param_name == CL_EVENT_COMMAND_EXECUTION_STATUS:
+    elif param_name == cl_event_info.CL_EVENT_COMMAND_EXECUTION_STATUS:
         param_value = cl_command_execution_status()
         clGetEventInfo.call(event, param_name, sizeof(param_value),
                             byref(param_value), None)
         return param_value
-    elif param_name == CL_EVENT_REFERENCE_COUNT:
+    elif param_name == cl_event_info.CL_EVENT_REFERENCE_COUNT:
         param_value = cl_uint()
         clGetEventInfo.call(event, param_name, sizeof(param_value),
                             byref(param_value), None)
@@ -1080,19 +1081,19 @@ class cl_platform(void_p):
         """
         Name of the platform. (str)
         """
-        return clGetPlatformInfo(self, CL_PLATFORM_NAME)
+        return clGetPlatformInfo(self, cl_platform_info.CL_PLATFORM_NAME)
     @property
     def vendor(self):
         """
         Vendor that distributes the platform. (str)
         """
-        return clGetPlatformInfo(self, CL_PLATFORM_VENDOR)
+        return clGetPlatformInfo(self, cl_platform_info.CL_PLATFORM_VENDOR)
     @property
     def version(self):
         """
         Platform version. Likely starts with 'OpenCL 1.1'. (str)
         """
-        return clGetPlatformInfo(self, CL_PLATFORM_VERSION)
+        return clGetPlatformInfo(self, cl_platform_info.CL_PLATFORM_VERSION)
     @property
     def extensions(self):
         """
@@ -1100,13 +1101,13 @@ class cl_platform(void_p):
         Note that devices have their own set of extensions which
         should be inspected separately.
         """
-        return clGetPlatformInfo(self, CL_PLATFORM_EXTENSIONS).split()
+        return clGetPlatformInfo(self, cl_platform_info.CL_PLATFORM_EXTENSIONS).split()
     @property
     def profile(self):
         """
         One of 'FULL_PROFILE' or 'EMBEDDED_PROFILE'.
         """
-        return clGetPlatformInfo(self, CL_PLATFORM_PROFILE)
+        return clGetPlatformInfo(self, cl_platform_info.CL_PLATFORM_PROFILE)
     @property
     def devices(self):
         """
@@ -1144,7 +1145,7 @@ def clGetPlatformInfo(platform, param_name):
     you, so you should probably use those instead of calling this directly.
 
     >>> plat = clGetPlatformIDs()[0]
-    >>> clGetPlatformInfo(plat, CL_PLATFORM_VERSION) # doctest: +ELLIPSIS
+    >>> clGetPlatformInfo(plat, cl_platform_info.CL_PLATFORM_VERSION) # doctest: +ELLIPSIS
     'OpenCL ...'
     >>> plat.version # doctest: +ELLIPSIS
     'OpenCL ...'
@@ -1152,7 +1153,7 @@ def clGetPlatformInfo(platform, param_name):
     Note that :const:`~cl_platform_info.CL_PLATFORM_EXTENSIONS` returns a
     string while the :attr:`extensions` attribute returns a list:
 
-    >>> clGetPlatformInfo(plat, CL_PLATFORM_EXTENSIONS)  # doctest: +ELLIPSIS
+    >>> clGetPlatformInfo(plat, cl_platform_info.CL_PLATFORM_EXTENSIONS)  # doctest: +ELLIPSIS
     '...'
     >>> plat.extensions                              # doctest: +ELLIPSIS
     [...]
@@ -1191,11 +1192,11 @@ class cl_device(void_p):
     def driver_version(self):
         # Defined here because it doesn't start with "CL_DEVICE_",
         # so the for-loop can't handle it.
-        return clGetDeviceInfo(self, CL_DRIVER_VERSION)
+        return clGetDeviceInfo(self, cl_device_info.CL_DRIVER_VERSION)
     @property
     def extensions(self):
         # Split extension list into an actual list.
-        return clGetDeviceInfo(self, CL_DEVICE_EXTENSIONS).split()
+        return clGetDeviceInfo(self, cl_device_info.CL_DEVICE_EXTENSIONS).split()
 
 # Laziness on my part. There are a *lot* of cl_device_info constants
 # representing possible inputs to clGetDeviceInfo. There should be
@@ -1243,32 +1244,32 @@ def clGetDeviceIDs(platform=None,
 # Anything not handled identified in one of these sets or in
 # a special case in the wrapper function is assumed to return a cl_uint.
 
-_device_info_sizes = frozenset((CL_DEVICE_MAX_WORK_GROUP_SIZE,
-                                CL_DEVICE_IMAGE2D_MAX_WIDTH,
-                                CL_DEVICE_IMAGE2D_MAX_HEIGHT,
-                                CL_DEVICE_IMAGE3D_MAX_WIDTH,
-                                CL_DEVICE_IMAGE3D_MAX_DEPTH,
-                                CL_DEVICE_MAX_PARAMETER_SIZE,
-                                CL_DEVICE_PROFILING_TIMER_RESOLUTION))
+_device_info_sizes = frozenset((cl_device_info.CL_DEVICE_MAX_WORK_GROUP_SIZE,
+                                cl_device_info.CL_DEVICE_IMAGE2D_MAX_WIDTH,
+                                cl_device_info.CL_DEVICE_IMAGE2D_MAX_HEIGHT,
+                                cl_device_info.CL_DEVICE_IMAGE3D_MAX_WIDTH,
+                                cl_device_info.CL_DEVICE_IMAGE3D_MAX_DEPTH,
+                                cl_device_info.CL_DEVICE_MAX_PARAMETER_SIZE,
+                                cl_device_info.CL_DEVICE_PROFILING_TIMER_RESOLUTION))
 
-_device_info_ulongs = frozenset((CL_DEVICE_MAX_MEM_ALLOC_SIZE,
-                                 CL_DEVICE_GLOBAL_MEM_CACHE_SIZE,
-                                 CL_DEVICE_GLOBAL_MEM_SIZE,
-                                 CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE,
-                                 CL_DEVICE_LOCAL_MEM_SIZE))
+_device_info_ulongs = frozenset((cl_device_info.CL_DEVICE_MAX_MEM_ALLOC_SIZE,
+                                 cl_device_info.CL_DEVICE_GLOBAL_MEM_CACHE_SIZE,
+                                 cl_device_info.CL_DEVICE_GLOBAL_MEM_SIZE,
+                                 cl_device_info.CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE,
+                                 cl_device_info.CL_DEVICE_LOCAL_MEM_SIZE))
 
-_device_info_bools = frozenset((CL_DEVICE_IMAGE_SUPPORT,
-                                CL_DEVICE_HOST_UNIFIED_MEMORY,
-                                CL_DEVICE_ENDIAN_LITTLE,
-                                CL_DEVICE_AVAILABLE,
-                                CL_DEVICE_COMPILER_AVAILABLE))
+_device_info_bools = frozenset((cl_device_info.CL_DEVICE_IMAGE_SUPPORT,
+                                cl_device_info.CL_DEVICE_HOST_UNIFIED_MEMORY,
+                                cl_device_info.CL_DEVICE_ENDIAN_LITTLE,
+                                cl_device_info.CL_DEVICE_AVAILABLE,
+                                cl_device_info.CL_DEVICE_COMPILER_AVAILABLE))
 
-_device_info_strings = frozenset((CL_DEVICE_NAME,
-                                  CL_DEVICE_VENDOR,
-                                  CL_DRIVER_VERSION,
-                                  CL_DEVICE_PROFILE,
-                                  CL_DEVICE_VERSION,
-                                  CL_DEVICE_EXTENSIONS))
+_device_info_strings = frozenset((cl_device_info.CL_DEVICE_NAME,
+                                  cl_device_info.CL_DEVICE_VENDOR,
+                                  cl_device_info.CL_DRIVER_VERSION,
+                                  cl_device_info.CL_DEVICE_PROFILE,
+                                  cl_device_info.CL_DEVICE_VERSION,
+                                  cl_device_info.CL_DEVICE_EXTENSIONS))
 
 @_wrapdll(cl_device, cl_device_info, size_t, void_p, P(size_t))
 def clGetDeviceInfo(device, param_name):
@@ -1280,9 +1281,9 @@ def clGetDeviceInfo(device, param_name):
     you, so you should probably use those instead of calling this directly.
 
     >>> d = clGetDeviceIDs()[0]
-    >>> clGetDeviceInfo(d, CL_DEVICE_NAME)  # doctest: +ELLIPSIS
+    >>> clGetDeviceInfo(d, cl_device_info.CL_DEVICE_NAME)  # doctest: +ELLIPSIS
     '...'
-    >>> clGetDeviceInfo(d, CL_DEVICE_TYPE)  # doctest: +ELLIPSIS
+    >>> clGetDeviceInfo(d, cl_device_info.CL_DEVICE_TYPE)  # doctest: +ELLIPSIS
     CL_DEVICE_TYPE_...
     >>> d.available
     True
@@ -1292,13 +1293,13 @@ def clGetDeviceInfo(device, param_name):
     Note that :const:`~cl_device_info.CL_DEVICE_EXTENSIONS` returns a
     string while the :attr:`extensions` attribute returns a list:
 
-    >>> clGetDeviceInfo(d, CL_DEVICE_EXTENSIONS)  # doctest: +ELLIPSIS
+    >>> clGetDeviceInfo(d, cl_device_info.CL_DEVICE_EXTENSIONS)  # doctest: +ELLIPSIS
     '...'
     >>> d.extensions                              # doctest: +ELLIPSIS
     [...]
 
     """
-    if param_name == CL_DEVICE_TYPE:
+    if param_name == cl_device_info.CL_DEVICE_TYPE:
         param_value = cl_device_type()
         clGetDeviceInfo.call(device, param_name, sizeof(param_value),
                              byref(param_value), None)
@@ -1327,22 +1328,22 @@ def clGetDeviceInfo(device, param_name):
             return str(param_value.value, 'utf-8')
         else:
             return param_value.value
-    elif param_name == CL_DEVICE_SINGLE_FP_CONFIG:
+    elif param_name == cl_device_info.CL_DEVICE_SINGLE_FP_CONFIG:
         param_value = cl_device_fp_config()
         clGetDeviceInfo.call(device, param_name, sizeof(param_value),
                              byref(param_value), None)
         return param_value
-    elif param_name == CL_DEVICE_GLOBAL_MEM_CACHE_TYPE:
+    elif param_name == cl_device_info.CL_DEVICE_GLOBAL_MEM_CACHE_TYPE:
         param_value = cl_device_mem_cache_type()
         clGetDeviceInfo.call(device, param_name, sizeof(param_value),
                              byref(param_value), None)
         return param_value
-    elif param_name == CL_DEVICE_LOCAL_MEM_TYPE:
+    elif param_name == cl_device_info.CL_DEVICE_LOCAL_MEM_TYPE:
         param_value = cl_device_local_mem_type()
         clGetDeviceInfo.call(device, param_name, sizeof(param_value),
                              byref(param_value), None)
         return param_value
-    elif param_name == CL_DEVICE_MAX_WORK_ITEM_SIZES:
+    elif param_name == cl_device_info.CL_DEVICE_MAX_WORK_ITEM_SIZES:
         sz = size_t()
         clGetDeviceInfo.call(device, param_name, 0, None, byref(sz))
         nd = sz.value // sizeof(size_t)
@@ -1350,17 +1351,17 @@ def clGetDeviceInfo(device, param_name):
         clGetDeviceInfo.call(device, param_name, sz,
                              byref(param_value), None)
         return tuple(int(x) for x in param_value)
-    elif param_name == CL_DEVICE_EXECUTION_CAPABILITIES:
+    elif param_name == cl_device_info.CL_DEVICE_EXECUTION_CAPABILITIES:
         param_value = cl_device_exec_capabilities()
         clGetDeviceInfo.call(device, param_name, sizeof(param_value),
                              byref(param_value), None)
         return param_value
-    elif param_name == CL_DEVICE_QUEUE_PROPERTIES:
+    elif param_name == cl_device_info.CL_DEVICE_QUEUE_PROPERTIES:
         param_value = cl_command_queue_properties()
         clGetDeviceInfo.call(device, param_name, sizeof(param_value),
                              byref(param_value), None)
         return param_value
-    elif param_name == CL_DEVICE_PLATFORM:
+    elif param_name == cl_device_info.CL_DEVICE_PLATFORM:
         param_value = cl_platform()
         clGetDeviceInfo.call(device, param_name, sizeof(param_value),
                              byref(param_value), None)
@@ -1391,7 +1392,7 @@ class cl_context(void_p):
         """
         try: return self._platform
         except AttributeError:
-            return clGetContextInfo(self, CL_CONTEXT_PLATFORM)
+            return clGetContextInfo(self, cl_context_info.CL_CONTEXT_PLATFORM)
     @property
     def reference_count(self):
         """
@@ -1399,13 +1400,13 @@ class cl_context(void_p):
         Using :func:`clReleaseContext` via pycl is an excellent way to
         generate segmentation faults.
         """
-        return clGetContextInfo(self, CL_CONTEXT_REFERENCE_COUNT)
+        return clGetContextInfo(self, cl_context_info.CL_CONTEXT_REFERENCE_COUNT)
     @property
     def num_devices(self):
         """
         Number of devices present in this particular context. (int)
         """
-        return clGetContextInfo(self, CL_CONTEXT_NUM_DEVICES)
+        return clGetContextInfo(self, cl_context_info.CL_CONTEXT_NUM_DEVICES)
     @property
     def devices(self):
         """
@@ -1414,13 +1415,13 @@ class cl_context(void_p):
         """
         try: return self._context
         except AttributeError:
-            return clGetContextInfo(self, CL_CONTEXT_DEVICES)
+            return clGetContextInfo(self, cl_context_info.CL_CONTEXT_DEVICES)
     @property
     def properties(self):
         """
         Low-level ctypes array that is probably not user-interpretable.
         """
-        return clGetContextInfo(self, CL_CONTEXT_PROPERTIES)
+        return clGetContextInfo(self, cl_context_info.CL_CONTEXT_PROPERTIES)
     def __repr__(self):
         try:
             plat = self.platform.name
@@ -1464,7 +1465,7 @@ def clCreateContext(devices=None, platform=None, other_props=None):
             platform = devices[0].platform
         else:
             platform = clGetPlatformIDs()[0]
-    properties[CL_CONTEXT_PLATFORM] = platform
+    properties[cl_context_info.CL_CONTEXT_PLATFORM] = platform
     if other_props:
         properties.update(other_props)
     if devices is None:
@@ -1487,7 +1488,7 @@ def clCreateContext(devices=None, platform=None, other_props=None):
         device_array[i] = d
     ctx = clCreateContext.call(props, len(devices), device_array,
                                None, None, byref(cl_errnum()))
-    if clGetContextInfo(ctx, CL_CONTEXT_REFERENCE_COUNT) < 1:
+    if clGetContextInfo(ctx, cl_context_info.CL_CONTEXT_REFERENCE_COUNT) < 1:
         raise ValueError("Unusable context")
     return ctx
 
@@ -1524,7 +1525,7 @@ def clCreateContextFromType(device_type=cl_device_type.CL_DEVICE_TYPE_DEFAULT,
             return ctx
         else:
             raise ValueError("Could not create suitable context")
-    properties[CL_CONTEXT_PLATFORM] = platform
+    properties[cl_context_info.CL_CONTEXT_PLATFORM] = platform
     if other_props:
         properties.update(other_props)
     props = (cl_context_properties*(2*len(properties)+1))()
@@ -1537,7 +1538,7 @@ def clCreateContextFromType(device_type=cl_device_type.CL_DEVICE_TYPE_DEFAULT,
     props[2*len(properties)] = 0
     ctx = clCreateContextFromType.call(props, device_type,
                                        None, None, byref(cl_errnum()))
-    if clGetContextInfo(ctx, CL_CONTEXT_REFERENCE_COUNT) < 1:
+    if clGetContextInfo(ctx, cl_context_info.CL_CONTEXT_REFERENCE_COUNT) < 1:
         raise ValueError("Unusable context")
     return ctx
 
@@ -1553,7 +1554,7 @@ def clGetContextInfo(context, param_name):
     you, so you should probably use those instead of calling this directly.
 
     >>> ctx = clCreateContext()
-    >>> clGetContextInfo(ctx, CL_CONTEXT_DEVICES) # doctest: +ELLIPSIS
+    >>> clGetContextInfo(ctx, cl_context_info.CL_CONTEXT_DEVICES) # doctest: +ELLIPSIS
     (<cl_device ...>...)
     >>> ctx.platform # doctest: +ELLIPSIS
     <cl_platform ...>
@@ -1562,7 +1563,7 @@ def clGetContextInfo(context, param_name):
     >>> ctx.properties # doctest: +ELLIPSIS
     <...cl_context_properties_Array...>
     """
-    if param_name == CL_CONTEXT_DEVICES:
+    if param_name == cl_context_info.CL_CONTEXT_DEVICES:
         try:
             return context._devices
         except AttributeError:
@@ -1573,7 +1574,7 @@ def clGetContextInfo(context, param_name):
             clGetContextInfo.call(context, param_name, sz, dev_array, None)
             context._devices = tuple(x for x in dev_array)
             return context._devices
-    elif param_name == CL_CONTEXT_PROPERTIES:
+    elif param_name == cl_context_info.CL_CONTEXT_PROPERTIES:
         sz = size_t()
         clGetContextInfo.call(context, param_name, 0, None, byref(sz))
         num_props = sz.value//sizeof(cl_context_properties)
@@ -1581,28 +1582,28 @@ def clGetContextInfo(context, param_name):
         clGetContextInfo.call(context, param_name, sz, props, None)
         # TODO
         # It's not entirely clear how we should present the result object
-        # to the user, since other than CL_CONTEXT_PLATFORM the possible
+        # to the user, since other than cl_context_info.CL_CONTEXT_PLATFORM the possible
         # values are all extension-dependent. For now, just return it.
         return props
-    elif param_name == CL_CONTEXT_PLATFORM:
+    elif param_name == cl_context_info.CL_CONTEXT_PLATFORM:
         # Not actually a valid input, but it should probably be
         # available in the properties list.
         try:
             return context._platform
         except AttributeError:
-            props = clGetContextInfo(context, CL_CONTEXT_PROPERTIES)
+            props = clGetContextInfo(context, cl_context_info.CL_CONTEXT_PROPERTIES)
             for i in range(0, len(props)-1, 2):
-                if props[i].value == CL_CONTEXT_PLATFORM.value:
+                if props[i].value == cl_context_info.CL_CONTEXT_PLATFORM.value:
                     context._platform = cl_platform(props[i+1].value)
                     break
             else:
                 context._platform = None
             return context._platform
-    elif param_name == CL_CONTEXT_NUM_DEVICES:
+    elif param_name == cl_context_info.CL_CONTEXT_NUM_DEVICES:
         # Sidestep bug in NVIDIA OpenCL driver by calculating
         # this in another fashion.
         sz = size_t()
-        clGetContextInfo.call(context, CL_CONTEXT_DEVICES, 0, None, byref(sz))
+        clGetContextInfo.call(context, cl_context_info.CL_CONTEXT_DEVICES, 0, None, byref(sz))
         return sz.value//sizeof(cl_device)
     else:
         param_value = cl_uint()
@@ -1635,25 +1636,25 @@ class cl_command_queue(void_p):
         """
         The context associated with the command queue. (:class:`cl_context`)
         """
-        return clGetCommandQueueInfo(self, CL_QUEUE_CONTEXT)
+        return clGetCommandQueueInfo(self, cl_command_queue_info.CL_QUEUE_CONTEXT)
     @property
     def device(self):
         """
         The device associated with the command queue. (:class:`cl_device`)
         """
-        return clGetCommandQueueInfo(self, CL_QUEUE_DEVICE)
+        return clGetCommandQueueInfo(self, cl_command_queue_info.CL_QUEUE_DEVICE)
     @property
     def properties(self):
         """
         Command queue property bitfield. (:class:`cl_command_queue_properties`)
         """
-        return clGetCommandQueueInfo(self, CL_QUEUE_PROPERTIES)
+        return clGetCommandQueueInfo(self, cl_command_queue_info.CL_QUEUE_PROPERTIES)
     @property
     def reference_count(self):
         """
         Reference count for OpenCL's garbage collector. (int)
         """
-        return clGetCommandQueueInfo(self, CL_QUEUE_REFERENCE_COUNT)
+        return clGetCommandQueueInfo(self, cl_command_queue_info.CL_QUEUE_REFERENCE_COUNT)
     def __repr__(self):
         try:
             dev = self.device
@@ -1706,7 +1707,7 @@ def clGetCommandQueueInfo(queue, param_name):
     >>> q.reference_count
     1
     """
-    if param_name == CL_QUEUE_CONTEXT:
+    if param_name == cl_command_queue_info.CL_QUEUE_CONTEXT:
         param_value = cl_context()
         clGetCommandQueueInfo.call(queue, param_name, sizeof(param_value),
                                    byref(param_value), None)
@@ -1714,17 +1715,17 @@ def clGetCommandQueueInfo(queue, param_name):
         # so we need to do that.
         clRetainContext(param_value)
         return param_value
-    elif param_name == CL_QUEUE_DEVICE:
+    elif param_name == cl_command_queue_info.CL_QUEUE_DEVICE:
         param_value = cl_device()
         clGetCommandQueueInfo.call(queue, param_name, sizeof(param_value),
                                    byref(param_value), None)
         return param_value
-    elif param_name == CL_QUEUE_PROPERTIES:
+    elif param_name == cl_command_queue_info.CL_QUEUE_PROPERTIES:
         param_value = cl_command_queue_properties()
         clGetCommandQueueInfo.call(queue, param_name, sizeof(param_value),
                                    byref(param_value), None)
         return param_value
-    elif param_name == CL_QUEUE_REFERENCE_COUNT:
+    elif param_name == cl_command_queue_info.CL_QUEUE_REFERENCE_COUNT:
         param_value = cl_uint()
         clGetCommandQueueInfo.call(queue, param_name, sizeof(param_value),
                                    byref(param_value), None)
@@ -1761,15 +1762,15 @@ class cl_mem(void_p):
         """Memory size, in bytes."""
         try: return self._size
         except AttributeError:
-            return clGetMemObjectInfo(self, CL_MEM_SIZE)
+            return clGetMemObjectInfo(self, cl_mem_info.CL_MEM_SIZE)
     @property
     def reference_count(self):
         """Reference count for OpenCL garbage collector."""
-        return clGetMemObjectInfo(self, CL_MEM_REFERENCE_COUNT)
+        return clGetMemObjectInfo(self, cl_mem_info.CL_MEM_REFERENCE_COUNT)
     @property
     def map_count(self):
         """Number of memory maps currently active for this object."""
-        return clGetMemObjectInfo(self, CL_MEM_MAP_COUNT)
+        return clGetMemObjectInfo(self, cl_mem_info.CL_MEM_MAP_COUNT)
     @property
     def hostptr(self):
         """Pointer to host address associated with this memory
@@ -1777,23 +1778,23 @@ class cl_mem(void_p):
         on the flags. (type is :c:type:`void*`)"""
         try: return self._hostptr
         except AttributeError:
-            return clGetMemObjectInfo(self, CL_MEM_HOST_PTR)
+            return clGetMemObjectInfo(self, cl_mem_info.CL_MEM_HOST_PTR)
     @property
     def flags(self):
         """The :class:`cl_mem_flags` the object was created with."""
-        return clGetMemObjectInfo(self, CL_MEM_FLAGS)
+        return clGetMemObjectInfo(self, cl_mem_info.CL_MEM_FLAGS)
     @property
     def type(self):
         """The :class:`cl_mem_type` of the object."""
         try: return self._type
         except AttributeError:
-            return clGetMemObjectInfo(self, CL_MEM_TYPE)
+            return clGetMemObjectInfo(self, cl_mem_info.CL_MEM_TYPE)
     @property
     def context(self):
         """The :class:`cl_context` the memory belongs to."""
         try: return self._context
         except AttributeError:
-            return clGetMemObjectInfo(self, CL_MEM_CONTEXT)
+            return clGetMemObjectInfo(self, cl_mem_info.CL_MEM_CONTEXT)
     def __del__(self):
         try:
             if self:
@@ -1815,13 +1816,13 @@ class cl_buffer(cl_mem):
         """Base memory object (for sub-buffers)"""
         try: return self._base
         except AttributeError:
-            return clGetMemObjectInfo(self, CL_MEM_ASSOCIATED_MEMOBJECT)
+            return clGetMemObjectInfo(self, cl_mem_info.CL_MEM_ASSOCIATED_MEMOBJECT)
     @property
     def offset(self):
         """Offset, in bytes, from origin (for sub-buffers)"""
         try: return self._offset
         except AttributeError:
-            return clGetMemObjectInfo(self, CL_MEM_OFFSET)
+            return clGetMemObjectInfo(self, cl_mem_info.CL_MEM_OFFSET)
 
 class cl_image(cl_mem):
     """
@@ -1832,48 +1833,48 @@ class cl_image(cl_mem):
     def format(self):
         try: return self._format
         except AttributeError:
-            return clGetImageInfo(self, CL_IMAGE_FORMAT)
+            return clGetImageInfo(self, cl_image_info.CL_IMAGE_FORMAT)
     @property
     def element_size(self):
         try: return self._element_size
         except AttributeError:
-            self._element_size = clGetImageInfo(self, CL_IMAGE_ELEMENT_SIZE)
+            self._element_size = clGetImageInfo(self, cl_image_info.CL_IMAGE_ELEMENT_SIZE)
             return self._element_size
     @property
     def row_pitch(self):
         try: return self._row_pitch
         except AttributeError:
-            self._row_pitch = clGetImageInfo(self, CL_IMAGE_ROW_PITCH)
+            self._row_pitch = clGetImageInfo(self, cl_image_info.CL_IMAGE_ROW_PITCH)
             return self._row_pitch
     @property
     def slice_pitch(self):
         try: return self._slice_pitch
         except AttributeError:
-            self._slice_pitch = clGetImageInfo(self, CL_IMAGE_SLICE_PITCH)
+            self._slice_pitch = clGetImageInfo(self, cl_image_info.CL_IMAGE_SLICE_PITCH)
             return self._slice_pitch
     @property
     def width(self):
         try: return self._width
         except AttributeError:
-            self._width = clGetImageInfo(self, CL_IMAGE_WIDTH)
+            self._width = clGetImageInfo(self, cl_image_info.CL_IMAGE_WIDTH)
             return self._width
     @property
     def height(self):
         try: return self._height
         except AttributeError:
-            self._height = clGetImageInfo(self, CL_IMAGE_HEIGHT)
+            self._height = clGetImageInfo(self, cl_image_info.CL_IMAGE_HEIGHT)
             return self._height
     @property
     def depth(self):
         try: return self._depth
         except AttributeError:
-            self._depth = clGetImageInfo(self, CL_IMAGE_DEPTH)
+            self._depth = clGetImageInfo(self, cl_image_info.CL_IMAGE_DEPTH)
             return self._depth
     def empty_like_this(self):
-        if self.type == CL_MEM_OBJECT_IMAGE2D:
+        if self.type == cl_mem_object_type.CL_MEM_OBJECT_IMAGE2D:
             return clCreateImage2D(self.context, self.width, self.height,
                                    self.format)
-        elif self.type == CL_MEM_OBJECT_IMAGE3D:
+        elif self.type == cl_mem_object_type.CL_MEM_OBJECT_IMAGE3D:
             return clCreateImage3D(self.context, self.width, self.height,
                                    self.depth, self.format)
         else:
@@ -1900,7 +1901,7 @@ def clCreateBuffer(context, size, flags = cl_mem_flags.CL_MEM_READ_WRITE,
     mem._context = context
     mem._base = host_ptr
     mem._flags = flags
-    mem._type = CL_MEM_OBJECT_BUFFER
+    mem._type = cl_mem_object_type.CL_MEM_OBJECT_BUFFER
     return mem
 
 @_wrapdll(cl_mem)
@@ -1948,7 +1949,7 @@ def clEnqueueReadBuffer(queue, mem, pointer, size=None,
     [0, 1, 2, 3, 4, 5, 6, 7]
     """
     if size is None:
-        size = clGetMemObjectInfo(mem, CL_MEM_SIZE)
+        size = clGetMemObjectInfo(mem, cl_mem_info.CL_MEM_SIZE)
     nevents, wait_array = _make_event_array(wait_for)
     out_event = cl_event()
     clEnqueueReadBuffer.call(queue, mem, blocking, offset, size, pointer,
@@ -1965,7 +1966,7 @@ def clEnqueueWriteBuffer(queue, mem, pointer, size=None,
     See :func:`clEnqueueReadBuffer` for the meanings of the parameters.
     """
     if size is None:
-        size = clGetMemObjectInfo(mem, CL_MEM_SIZE)
+        size = clGetMemObjectInfo(mem, cl_mem_info.CL_MEM_SIZE)
     nevents, wait_array = _make_event_array(wait_for)
     out_event = cl_event()
     clEnqueueWriteBuffer.call(queue, mem, blocking, offset, size, pointer,
@@ -1977,7 +1978,7 @@ def clEnqueueWriteBuffer(queue, mem, pointer, size=None,
 def clEnqueueCopyBuffer(queue, src_buffer, dst_buffer, src_offset=0, dst_offset=0,
                         size=None, wait_for=None):
     if size is None:
-        size = clGetMemObjectInfo(dst_buffer, CL_MEM_SIZE)
+        size = clGetMemObjectInfo(dst_buffer, cl_mem_info.CL_MEM_SIZE)
     nevents, wait_array = _make_event_array(wait_for)
     out_event = cl_event()
     clEnqueueCopyBuffer.call(queue, src_buffer, dst_buffer, src_offset, dst_offset,
@@ -1994,7 +1995,7 @@ def clGetMemObjectInfo(mem, param_name):
     Memory objects have properties that will retrieve these
     values for you, so you should probably use those.
     """
-    if param_name == CL_MEM_TYPE:
+    if param_name == cl_mem_info.CL_MEM_TYPE:
         try: return mem._type
         except AttributeError:
             param_value = cl_mem_object_type()
@@ -2002,12 +2003,12 @@ def clGetMemObjectInfo(mem, param_name):
                                     byref(param_value), None)
             mem._type = param_value
             return param_value
-    elif param_name == CL_MEM_FLAGS:
+    elif param_name == cl_mem_info.CL_MEM_FLAGS:
         param_value = cl_mem_flags()
         clGetMemObjectInfo.call(mem, param_name, sizeof(param_value),
                                 byref(param_value), None)
         return param_value
-    elif param_name == CL_MEM_SIZE:
+    elif param_name == cl_mem_info.CL_MEM_SIZE:
         try: return mem._size
         except AttributeError:
             param_value = size_t()
@@ -2015,18 +2016,18 @@ def clGetMemObjectInfo(mem, param_name):
                                     byref(param_value), None)
             mem._size = int(param_value.value)
             return mem._size
-    elif param_name == CL_MEM_OFFSET:
+    elif param_name == cl_mem_info.CL_MEM_OFFSET:
         param_value = size_t()
         clGetMemObjectInfo.call(mem, param_name, sizeof(param_value),
                                 byref(param_value), None)
         mem._offset = int(param_value.value)
         return mem._offset
-    elif param_name in (CL_MEM_MAP_COUNT, CL_MEM_REFERENCE_COUNT):
+    elif param_name in (cl_mem_info.CL_MEM_MAP_COUNT, cl_mem_info.CL_MEM_REFERENCE_COUNT):
         param_value = cl_uint()
         clGetMemObjectInfo.call(mem, param_name, sizeof(param_value),
                                 byref(param_value), None)
         return int(param_value.value)
-    elif param_name == CL_MEM_ASSOCIATED_MEMOBJECT:
+    elif param_name == cl_mem_info.CL_MEM_ASSOCIATED_MEMOBJECT:
         try: return mem._base
         except AttributeError: pass
         param_value = cl_buffer()
@@ -2035,7 +2036,7 @@ def clGetMemObjectInfo(mem, param_name):
         if param_value: mem._base = param_value
         else: mem._base = None
         return mem._base
-    elif param_name == CL_MEM_CONTEXT:
+    elif param_name == cl_mem_info.CL_MEM_CONTEXT:
         try: return mem._context
         except AttributeError: pass
         param_value = cl_context()
@@ -2044,7 +2045,7 @@ def clGetMemObjectInfo(mem, param_name):
         clRetainContext(param_value)
         mem._context = param_value
         return param_value
-    elif param_name == CL_MEM_HOST_PTR:
+    elif param_name == cl_mem_info.CL_MEM_HOST_PTR:
         try: return mem._hostptr
         except AttributeError: pass
         param_value = void_p()
@@ -2122,7 +2123,7 @@ def clGetSupportedImageFormats(context=None,
 
 @_wrapdll(cl_image, cl_image_info, size_t, void_p, P(size_t))
 def clGetImageInfo(img, param_name):
-    if param_name == CL_IMAGE_FORMAT:
+    if param_name == cl_image_info.CL_IMAGE_FORMAT:
         try: return img._format
         except AttributeError:
             param_value = cl_image_format()
@@ -2130,17 +2131,17 @@ def clGetImageInfo(img, param_name):
                                 byref(param_value), None)
             img._format = param_value
             return param_value
-    elif param_name in (CL_IMAGE_ELEMENT_SIZE,
-                        CL_IMAGE_ROW_PITCH,
-                        CL_IMAGE_SLICE_PITCH,
-                        CL_IMAGE_WIDTH,
-                        CL_IMAGE_HEIGHT,
-                        CL_IMAGE_DEPTH):
+    elif param_name in (cl_image_info.CL_IMAGE_ELEMENT_SIZE,
+                        cl_image_info.CL_IMAGE_ROW_PITCH,
+                        cl_image_info.CL_IMAGE_SLICE_PITCH,
+                        cl_image_info.CL_IMAGE_WIDTH,
+                        cl_image_info.CL_IMAGE_HEIGHT,
+                        cl_image_info.CL_IMAGE_DEPTH):
         param_value = size_t()
         clGetImageInfo.call(img, param_name, sizeof(param_value),
                             byref(param_value), None)
         return int(param_value.value)
-    else: # CL_IMAGE_D3D10_SUBRESOURCE_KHR
+    else: # cl_image_info.CL_IMAGE_D3D10_SUBRESOURCE_KHR
         param_value = void_p()
         clGetImageInfo.call(img, param_name, sizeof(param_value),
                             byref(param_value), None)
@@ -2190,51 +2191,51 @@ class cl_program(void_p):
         try:
             return self._context
         except AttributeError:
-            return clGetProgramInfo(self, CL_PROGRAM_CONTEXT)
+            return clGetProgramInfo(self, cl_program_info.CL_PROGRAM_CONTEXT)
     @property
     def reference_count(self):
         """Reference count for OpenCL garbage collector."""
-        return clGetProgramInfo(self, CL_PROGRAM_REFERENCE_COUNT)
+        return clGetProgramInfo(self, cl_program_info.CL_PROGRAM_REFERENCE_COUNT)
     @property
     def num_devices(self):
         """Number of devices the program exists on."""
-        return clGetProgramInfo(self, CL_PROGRAM_NUM_DEVICES)
+        return clGetProgramInfo(self, cl_program_info.CL_PROGRAM_NUM_DEVICES)
     @property
     def devices(self):
         """Devices on which the program exists."""
-        return clGetProgramInfo(self, CL_PROGRAM_DEVICES)
+        return clGetProgramInfo(self, cl_program_info.CL_PROGRAM_DEVICES)
     @property
     def source(self):
         """Program's source code, if available."""
-        return clGetProgramInfo(self, CL_PROGRAM_SOURCE)
+        return clGetProgramInfo(self, cl_program_info.CL_PROGRAM_SOURCE)
     @property
     def binary_sizes(self):
         """Sizes, in bytes, of the binaries for each of the
         devices the program is compiled for."""
-        return clGetProgramInfo(self, CL_PROGRAM_BINARY_SIZES)
+        return clGetProgramInfo(self, cl_program_info.CL_PROGRAM_BINARY_SIZES)
     @property
     def binaries(self):
         """Acquires the binaries for each device."""
-        return clGetProgramInfo(self, CL_PROGRAM_BINARIES)
+        return clGetProgramInfo(self, cl_program_info.CL_PROGRAM_BINARIES)
     def build_status(self, device=None):
         """
         Retrieves the :class:`cl_program_build_status` for one of more devices.
         See also :func:`clGetProgramBuildInfo`
         """
-        return clGetProgramBuildInfo(self, CL_PROGRAM_BUILD_STATUS, device)
+        return clGetProgramBuildInfo(self, cl_program_build_info.CL_PROGRAM_BUILD_STATUS, device)
     def build_options(self, device=None):
         """
         Retrieves the build options, as a string, for one of more devices.
         See also :func:`clGetProgramBuildInfo`.
         """
-        return clGetProgramBuildInfo(self, CL_PROGRAM_BUILD_OPTIONS, device)
+        return clGetProgramBuildInfo(self, cl_program_info.CL_PROGRAM_BUILD_OPTIONS, device)
     def build_log(self, device=None):
         """
         Returns the build log, as a string, for one or more devices.
         Mostly useful for checking compiler errors.
         See also :func:`clGetProgramBuildInfo`.
         """
-        return clGetProgramBuildInfo(self, CL_PROGRAM_BUILD_LOG, device)
+        return clGetProgramBuildInfo(self, cl_program_build_info.CL_PROGRAM_BUILD_LOG, device)
     def __del__(self):
         try:
             if self: clReleaseProgram(self)
@@ -2246,7 +2247,7 @@ def clGetProgramInfo(program, param_name):
     :param program: :class:`cl_program`
     :param param_name: One of the :class:`cl_program_info` values.
     """
-    if param_name == CL_PROGRAM_CONTEXT:
+    if param_name == cl_program_info.CL_PROGRAM_CONTEXT:
         try:
             return program._context
         except AttributeError:
@@ -2256,38 +2257,38 @@ def clGetProgramInfo(program, param_name):
             clRetainContext(param_value)
             program._context = param_value
             return param_value
-    elif param_name in (CL_PROGRAM_REFERENCE_COUNT,
-                        CL_PROGRAM_NUM_DEVICES):
+    elif param_name in (cl_program_info.CL_PROGRAM_REFERENCE_COUNT,
+                        cl_program_info.CL_PROGRAM_NUM_DEVICES):
         param_value = cl_uint()
         clGetProgramInfo.call(program, param_name, sizeof(param_value),
                               byref(param_value), None)
         return int(param_value.value)
-    elif param_name == CL_PROGRAM_DEVICES:
+    elif param_name == cl_program_info.CL_PROGRAM_DEVICES:
         sz = size_t()
         clGetProgramInfo.call(program, param_name, 0, None, byref(sz))
         nd = sz.value // sizeof(cl_device)
         param_value = (cl_device * nd)()
         clGetProgramInfo.call(program, param_name, sz, param_value, None)
         return [x for x in param_value]
-    elif param_name == CL_PROGRAM_SOURCE:
+    elif param_name == cl_program_info.CL_PROGRAM_SOURCE:
         sz = size_t()
         clGetProgramInfo.call(program, param_name, 0, None, byref(sz))
         param_value = create_string_buffer(sz.value)
         clGetProgramInfo.call(program, param_name, sz, param_value, None)
         return param_value.value
-    elif param_name == CL_PROGRAM_BINARY_SIZES:
+    elif param_name == cl_program_info.CL_PROGRAM_BINARY_SIZES:
         sz = size_t()
         clGetProgramInfo.call(program, param_name, 0, None, byref(sz))
         nd = sz.value // sizeof(size_t)
         param_value = (size_t * nd)()
         clGetProgramInfo.call(program, param_name, sz, param_value, None)
         return [int(x) for x in param_value]
-    elif param_name == CL_PROGRAM_BINARIES:
+    elif param_name == cl_program_info.CL_PROGRAM_BINARIES:
         sz = size_t()
         clGetProgramInfo.call(program, param_name, 0, None, byref(sz))
         nd = sz.value // sizeof(char_p)
         param_value = (char_p * nd)()
-        binary_sizes = clGetProgramInfo(program, CL_PROGRAM_BINARY_SIZES)
+        binary_sizes = clGetProgramInfo(program, cl_program_info.CL_PROGRAM_BINARY_SIZES)
         binaries = [None]*nd
         for i, bsize in enumerate(binary_sizes):
             binaries[i] = (ctypes.c_char * bsize)()
@@ -2320,14 +2321,14 @@ def clGetProgramBuildInfo(program, param_name, device=None):
     if not isinstance(device, cl_device):
         return [clGetProgramBuildInfo(program, param_name, each_device)
                 for each_device in program.devices]
-    if param_name == CL_PROGRAM_BUILD_STATUS:
+    if param_name == cl_program_build_info.CL_PROGRAM_BUILD_STATUS:
         param_value = cl_build_status()
         clGetProgramBuildInfo.call(program, device, param_name,
                                    sizeof(param_value),
                                    byref(param_value), None)
         return param_value
-    elif param_name in (CL_PROGRAM_BUILD_OPTIONS,
-                        CL_PROGRAM_BUILD_LOG):
+    elif param_name in (cl_program_build_info.CL_PROGRAM_BUILD_OPTIONS,
+                        cl_program_build_info.CL_PROGRAM_BUILD_LOG):
         sz = size_t()
         clGetProgramBuildInfo.call(program, device, param_name,
                                    0, None, byref(sz))
@@ -2388,10 +2389,10 @@ def clBuildProgram(program, options=None, devices=None):
     try:
         clBuildProgram.call(program, num_devices, dev_array,
                             options, None, None)
-    except BuildProgramFailureError:
+    except BuildProgramFailureError: # this exception is dynamically created
         # Re-raise with appropriate message
         for dev in devices:
-            if program.build_status(dev) == CL_BUILD_ERROR:
+            if program.build_status(dev) == cl_build_status.CL_BUILD_ERROR:
                 log = program.build_log(dev)
                 raise BuildProgramFailureError(log)
 
@@ -2431,32 +2432,32 @@ class cl_kernel(void_p):
         try:
             return self._name
         except AttributeError:
-            return clGetKernelInfo(self, CL_KERNEL_FUNCTION_NAME)
+            return clGetKernelInfo(self, cl_kernel_info.CL_KERNEL_FUNCTION_NAME)
     @property
     def program(self):
         """The :class:`cl_program` this kernel lives in."""
         try:
             return self._program
         except AttributeError:
-            return clGetKernelInfo(self, CL_KERNEL_PROGRAM)
+            return clGetKernelInfo(self, cl_kernel_info.CL_KERNEL_PROGRAM)
     @property
     def context(self):
         """The :class:`cl_context` this kernel lives in."""
         try:
             return self._context
         except AttributeError:
-            return clGetKernelInfo(self, CL_KERNEL_CONTEXT)
+            return clGetKernelInfo(self, cl_kernel_info.CL_KERNEL_CONTEXT)
     @property
     def num_args(self):
         """Number of arguments required to call this kernel."""
         try:
             return self._num_args
         except AttributeError:
-            return clGetKernelInfo(self, CL_KERNEL_NUM_ARGS)
+            return clGetKernelInfo(self, cl_kernel_info.CL_KERNEL_NUM_ARGS)
     @property
     def reference_count(self):
         """Reference count for OpenCL garbage collector."""
-        return clGetKernelInfo(self, CL_KERNEL_REFERENCE_COUNT)
+        return clGetKernelInfo(self, cl_kernel_info.CL_KERNEL_REFERENCE_COUNT)
 
     def __call__(self, *args, **kw):
         """
@@ -2613,21 +2614,21 @@ class cl_kernel(void_p):
         specified device.
         """
         return clGetKernelWorkGroupInfo(self,
-                            CL_KERNEL_WORK_GROUP_SIZE, device)
+                            cl_kernel_work_group_info.CL_KERNEL_WORK_GROUP_SIZE, device)
     def compile_work_group_size(self, device=None):
         """
         The work group size specified by the kernel source, if any.
         Otherwise, will return (0,0,0).
         """
         return clGetKernelWorkGroupInfo(self,
-                            CL_KERNEL_COMPILE_WORK_GROUP_SIZE, device)
+                            cl_kernel_work_group_info.CL_KERNEL_COMPILE_WORK_GROUP_SIZE, device)
     def local_mem_size(self, device=None):
         """
         The amount of local memory that would be used by this kernel
         on the given device with its current argument set.
         """
         return clGetKernelWorkGroupInfo(self,
-                            CL_KERNEL_LOCAL_MEM_SIZE, device)
+                            cl_kernel_work_group_info.CL_KERNEL_LOCAL_MEM_SIZE, device)
     def preferred_work_group_size_multiple(self, device=None):
         """
         Suggests a workgroup size multiplier for each dimension.
@@ -2635,13 +2636,13 @@ class cl_kernel(void_p):
         be multiples of 8.
         """
         return clGetKernelWorkGroupInfo(self,
-                        CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE, device)
+                        cl_kernel_work_group_info.CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE, device)
     def private_mem_size(self, device=None):
         """
         Amount of private memory needed to execute each workitem on the device.
         """
         return clGetKernelWorkGroupInfo(self,
-                            CL_KERNEL_PRIVATE_MEM_SIZE, device)
+                            cl_kernel_work_group_info.CL_KERNEL_PRIVATE_MEM_SIZE, device)
 
 
 @_wrapdll(cl_program, char_p, P(cl_errnum),
@@ -2673,19 +2674,19 @@ def clGetKernelInfo(kernel, param_name):
     Kernel objects have properties that call this function, so it
     is probably preferable to use those instead.
     """
-    if param_name == CL_KERNEL_FUNCTION_NAME:
+    if param_name == cl_kernel_info.CL_KERNEL_FUNCTION_NAME:
         sz = size_t()
         clGetKernelInfo.call(kernel, param_name, 0, None, byref(sz))
         param_value = create_string_buffer(sz.value)
         clGetKernelInfo.call(kernel, param_name, sz, param_value, None)
         return param_value.value
-    elif param_name == CL_KERNEL_CONTEXT:
+    elif param_name == cl_kernel_info.CL_KERNEL_CONTEXT:
         param_value = cl_context()
         clGetKernelInfo.call(kernel, param_name, sizeof(param_value),
                              byref(param_value), None)
         clRetainContext(param_value)
         return param_value
-    elif param_name == CL_KERNEL_PROGRAM:
+    elif param_name == cl_kernel_info.CL_KERNEL_PROGRAM:
         try:
             return kernel._program
         except AttributeError:
@@ -2695,7 +2696,7 @@ def clGetKernelInfo(kernel, param_name):
             clRetainProgram(param_value)
             kernel._program = program
             return param_value
-    elif param_name == CL_KERNEL_CONTEXT:
+    elif param_name == cl_kernel_info.CL_KERNEL_CONTEXT:
         try:
             return kernel._context
         except AttributeError:
@@ -2705,7 +2706,7 @@ def clGetKernelInfo(kernel, param_name):
             clRetainContext(param_value)
             kernel._context = context
             return param_value
-    elif param_name == CL_KERNEL_NUM_ARGS:
+    elif param_name == cl_kernel_info.CL_KERNEL_NUM_ARGS:
         try:
             return kernel._num_args
         except AttributeError:
@@ -2714,7 +2715,7 @@ def clGetKernelInfo(kernel, param_name):
                                  byref(param_value), None)
             kernel._num_args = int(param_value.value)
             return kernel._num_args
-    elif param_name == CL_KERNEL_REFERENCE_COUNT:
+    elif param_name == cl_kernel_info.CL_KERNEL_REFERENCE_COUNT:
         param_value = cl_uint()
         clGetKernelInfo.call(kernel, param_name, sizeof(param_value),
                              byref(param_value), None)
@@ -2737,21 +2738,21 @@ def clGetKernelWorkGroupInfo(kernel, param_name, device=None):
     """
     if device is None:
         device = kernel.context.devices[0]
-    if param_name in (CL_KERNEL_WORK_GROUP_SIZE,
-                      CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE):
+    if param_name in (cl_kernel_work_group_info.CL_KERNEL_WORK_GROUP_SIZE,
+                      cl_kernel_work_group_info.CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE):
         param_value = size_t()
         clGetKernelWorkGroupInfo.call(kernel, device, param_name,
                                       sizeof(param_value),
                                       byref(param_value), None)
         return int(param_value.value)
-    elif param_name in (CL_KERNEL_LOCAL_MEM_SIZE,
-                        CL_KERNEL_PRIVATE_MEM_SIZE):
+    elif param_name in (cl_kernel_work_group_info.CL_KERNEL_LOCAL_MEM_SIZE,
+                        cl_kernel_work_group_info.CL_KERNEL_PRIVATE_MEM_SIZE):
         param_value = cl_ulong()
         clGetKernelWorkGroupInfo.call(kernel, device, param_name,
                                       sizeof(param_value),
                                       byref(param_value), None)
         return int(param_value.value)
-    elif param_name == CL_KERNEL_COMPILE_WORK_GROUP_SIZE:
+    elif param_name == cl_kernel_work_group_info.CL_KERNEL_COMPILE_WORK_GROUP_SIZE:
         param_value = (size_t * 3)()
         clGetKernelWorkGroupInfo.call(kernel, device, param_name,
                                       sizeof(param_value),
@@ -3024,7 +3025,8 @@ def _make_all():
     g['__all__'] = __all__
 _make_all()
 
-if __name__ == '__main__':
+
+def main():
     import sys
     if '--doctest' in sys.argv:
         import doctest
@@ -3039,9 +3041,21 @@ if __name__ == '__main__':
             print("       Profile: %s" % p.profile)
             print("    Extensions: %s" % ", ".join(p.extensions))
             for d in clGetDeviceIDs(p):
+                print("="*80)
                 print("    %s: %s" % (str(d.type)[15:], d.name))
                 print("        Vendor: %s" % d.vendor)
                 print("       Version: %s" % d.version)
                 print("       Profile: %s" % d.profile)
                 print("        Driver: %s" % d.driver_version)
+                # print(_device_info_ulongs)
+                for ul in _device_info_ulongs:
+                    print("       {:44s}: {}".format(ul, clGetDeviceInfo(d, ul)))
+                for ul in _device_info_sizes:
+                    print("       {:44s}: {}".format(ul, clGetDeviceInfo(d, ul)))
+                for ul in _device_info_bools:
+                    print("       {:44s}: {}".format(ul, clGetDeviceInfo(d, ul)))
                 print("    Extensions: %s" % ", ".join(d.extensions))
+
+
+if __name__ == '__main__':
+    main()

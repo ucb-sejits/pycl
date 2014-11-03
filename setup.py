@@ -34,8 +34,8 @@ setup(
     version=__version__,
     author="Ken Watford",
     author_email="kwatford@gmail.com",
-    url="https://bitbucket.org/kw/pycl",
-    download_url="https://bitbucket.org/kw/pycl/downloads",
+    url="https://github.com/ucb-sejits/pycl",
+    download_url="https://github.com/ucb-sejits/pycl",
     py_modules=['pycl'],
     license='MIT',
     description="OpenCL wrapper using ctypes",
@@ -50,4 +50,8 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 3',
         ],
+    entry_points={
+        'console_scripts': ['pycl = pycl:main'],
+    }
+
 )

@@ -44,3 +44,10 @@ NVIDIA_.
 .. _AMD: http://developer.amd.com/zones/OpenCLZone/pages/toolsandlibraries.aspx
 .. _Intel: http://software.intel.com/en-us/articles/download-intel-opencl-sdk/
 .. _NVIDIA: http://developer.nvidia.com/opencl
+
+Device Report
+=============
+Installing pycl creates a pycl script which will give you a rather verbose report
+on the OpenCL device present on your system, just:
+
+    pycl

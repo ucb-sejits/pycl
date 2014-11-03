@@ -3,7 +3,9 @@
 *.egg-info
 .DS_Store
 *.class
+*.xml
 dist/
+distribute*
 build/
 MANIFEST
 docs/_build
