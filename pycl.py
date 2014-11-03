@@ -119,6 +119,7 @@ from array import array
 try:
     import numpy as np
 except ImportError:
+    np = None
     pass
 
 class cl_sampler(void_p): pass
@@ -2927,6 +2928,9 @@ def buffer_from_ndarray(queue, ary, buf=None, **kw):
     Any additional provided keyword arguments are passed along to
     :func:`clEnqueueWriteBuffer`.
     """
+    if not np:
+        raise Exception("numpy not available")
+
     ary = np.ascontiguousarray(ary)
     if buf is None:
         buf = clCreateBuffer(queue.context, ary.nbytes)
@@ -2963,8 +2967,14 @@ def buffer_to_ndarray(queue, buf, out=None, like=None,
     """
     if out is None:
         if like is not None:
+            if not np:
+                raise Exception("numpy not available")
+
             out = np.empty_like(like)
         else:
+            if not np:
+                raise Exception("numpy not available")
+
             dtype = np.dtype(dtype)
             if shape is None:
                 shape = buf.size // dtype.itemsize

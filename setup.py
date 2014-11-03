@@ -1,33 +1,6 @@
 from setuptools import setup
 
-from setuptools.command.sdist import sdist
-from subprocess import Popen, PIPE
-
 from pycl import __version__
-
-class sdist_hg(sdist):
-    user_options = sdist.user_options + [
-            ('dev', None, "Add a dev marker")
-            ]
-
-    def initialize_options(self):
-        sdist.initialize_options(self)
-        self.dev = 0
-
-    def run(self):
-        if self.dev:
-            suffix = '.dev%s' % self.get_revision()
-            self.distribution.metadata.version += suffix
-        sdist.run(self)
-
-    def get_revision(self):
-        try:
-            p = Popen(['hg', 'id', '-i'], stdout=PIPE)
-            rev = p.stdout.read().strip()
-        except:
-            print("Could not determine hg revision.")
-            rev = "deadbeef"
-        return rev
 
 setup(
     name='pycl',
@@ -41,8 +14,7 @@ setup(
     description="OpenCL wrapper using ctypes",
     long_description=open('README.md').read(),
     tests_require=['nose'],
-    cmdclass={'sdist': sdist_hg},
-    classifiers = [
+    classifiers=[
         'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
