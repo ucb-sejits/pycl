@@ -1253,6 +1253,9 @@ _device_info_sizes = frozenset((cl_device_info.CL_DEVICE_MAX_WORK_GROUP_SIZE,
                                 cl_device_info.CL_DEVICE_MAX_PARAMETER_SIZE,
                                 cl_device_info.CL_DEVICE_PROFILING_TIMER_RESOLUTION))
 
+_device_info_counts = frozenset((cl_device_info.CL_DEVICE_MAX_COMPUTE_UNITS,
+                                 cl_device_info.CL_DEVICE_MAX_WORK_ITEM_SIZES))
+
 _device_info_ulongs = frozenset((cl_device_info.CL_DEVICE_MAX_MEM_ALLOC_SIZE,
                                  cl_device_info.CL_DEVICE_GLOBAL_MEM_CACHE_SIZE,
                                  cl_device_info.CL_DEVICE_GLOBAL_MEM_SIZE,
@@ -3057,12 +3060,13 @@ def main():
                 print("       Version: %s" % d.version)
                 print("       Profile: %s" % d.profile)
                 print("        Driver: %s" % d.driver_version)
-                # print(_device_info_ulongs)
                 for ul in _device_info_ulongs:
                     print("       {:44s}: {}".format(ul, clGetDeviceInfo(d, ul)))
                 for ul in _device_info_sizes:
                     print("       {:44s}: {}".format(ul, clGetDeviceInfo(d, ul)))
                 for ul in _device_info_bools:
+                    print("       {:44s}: {}".format(ul, clGetDeviceInfo(d, ul)))
+                for ul in _device_info_counts:
                     print("       {:44s}: {}".format(ul, clGetDeviceInfo(d, ul)))
                 print("    Extensions: %s" % ", ".join(d.extensions))
 
