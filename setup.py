@@ -12,7 +12,7 @@ setup(
     py_modules=['pycl'],
     license='MIT',
     description="OpenCL wrapper using ctypes",
-    long_description=open('README.md').read(),
+    # long_description=open('README.md').read(),
     tests_require=['nose'],
     classifiers=[
         'Development Status :: 3 - Alpha',
