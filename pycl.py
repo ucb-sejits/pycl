@@ -105,7 +105,7 @@ extensions (like OpenGL interop). Maybe later.
 #
 # tl;dr - MIT license.
 
-__version__ = '0.1a2'
+__version__ = '0.1a3'
 
 import ctypes
 import _ctypes
@@ -1990,6 +1990,22 @@ def clEnqueueCopyBuffer(queue, src_buffer, dst_buffer, src_offset=0, dst_offset=
     return out_event
 
 
+@_wrapdll(cl_command_queue, cl_buffer, void_p, size_t, size_t,
+          void_p, cl_uint, P(cl_event), P(cl_event))
+def clEnqueueFillBuffer(queue, mem, pattern, pattern_size=0, offset=0,
+                        size=0, wait_for=None):
+    """
+    Enqueues a command to fill a buffer object with a pattern of a given pattern size.
+
+    TODO: Automatically determine pattern_size, perhaps in a wrapper function?
+    """
+    if size is None:
+        size = clGetMemObjectInfo(mem, cl_mem_info.CL_MEM_SIZE)
+    nevents, wait_array = _make_event_array(wait_for)
+    out_event = cl_event()
+    clEnqueueWriteBuffer.call(queue, mem, pattern, pattern_size, offset, size,
+                              nevents, wait_array, byref(out_event))
+    return out_event
 @_wrapdll(cl_mem, cl_mem_info, size_t, void_p, P(size_t))
 def clGetMemObjectInfo(mem, param_name):
     """
