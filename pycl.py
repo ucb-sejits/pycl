@@ -469,6 +469,7 @@ class cl_context_info(cl_uenum):
     CL_GLX_DISPLAY_KHR =                          0x200A
     CL_WGL_HDC_KHR =                              0x200B
     CL_CGL_SHAREGROUP_KHR =                       0x200C
+    CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE = 0x10000000
 
 class cl_command_queue_info(cl_uenum):
     """
