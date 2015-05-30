@@ -558,6 +558,14 @@ class cl_mem_info(cl_uenum):
     CL_MEM_ASSOCIATED_MEMOBJECT =                 0x1107
     CL_MEM_OFFSET =                               0x1108
 
+class cl_mem_migration_flags(cl_uenum):
+    """
+    The set of possible parameter names used
+    with the :func:`clEnqueueMigrateMemObjects` function.
+    """
+    CL_MIGRATE_MEM_OBJECT_HOST =                  0x1
+    CL_MIGRATE_MEM_OBJECT_CONTENT_UNDEFINED =     0x2
+
 class cl_image_info(cl_uenum):
     """
     Parameter names accepted by :func:`clGetImageInfo`
@@ -2926,6 +2934,16 @@ if HAVE_OPENGL:
                 nevents, wait_array, byref(out_event))
         return out_event
 
+
+@_wrapdll(cl_command_queue, cl_uint, P(cl_mem), cl_mem_migration_flags,
+          cl_uint, P(cl_event), P(cl_event))
+def clEnqueueMigrateMemObjects(queue, mem_objs, flags=0x0, wait_for=None):
+    mem_obj_array = (cl_mem * len(mem_objs))(*mem_objs)
+    nevents, wait_array = _make_event_array(wait_for)
+    out_event = cl_event()
+    clEnqueueMigrateMemObjects.call(queue, len(mem_objs), mem_obj_array, flags,
+                                nevents, wait_array, byref(out_event))
+    return out_event
 
 
 def buffer_from_ndarray(queue, ary, buf=None, **kw):
