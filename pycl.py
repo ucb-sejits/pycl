@@ -984,12 +984,6 @@ class cl_event(void_p):
             return "<cl_event %s (%s) >" % (self.type, self.status)
         except:
             return "<cl_event 0x%x>" % (self.value or 0)
-    def __del__(self):
-        try:
-            if self:
-                clReleaseEvent(self)
-        except:
-            pass
 
 def _make_event_array(events):
     if not events: return (0, None)
@@ -1443,12 +1437,6 @@ class cl_context(void_p):
         nd = self.num_devices or 0
         address = self.value or 0
         return "<cl_context %s:%d 0x%x>" % (plat, nd, address)
-    def __del__(self):
-        try:
-            if self and self.reference_count > 0:
-                clReleaseContext(self)
-        except:
-            pass
 
 @_wrapdll(P(cl_context_properties), cl_uint, P(cl_device),
           void_p, void_p, P(cl_errnum),
@@ -1674,12 +1662,6 @@ class cl_command_queue(void_p):
             return "<cl_command_queue '%s'>" % dev.name
         except:
             return "<cl_command_queue 0x%x>" % (self.value or 0)
-    def __del__(self):
-        try:
-            if self and self.reference_count > 0:
-                clReleaseCommandQueue(self)
-        except:
-            pass
 
 
 @_wrapdll(cl_context, cl_device, cl_command_queue_properties, P(cl_errnum),
@@ -1808,12 +1790,6 @@ class cl_mem(void_p):
         try: return self._context
         except AttributeError:
             return clGetMemObjectInfo(self, cl_mem_info.CL_MEM_CONTEXT)
-    def __del__(self):
-        try:
-            if self:
-                clReleaseMemObject(self)
-        except:
-            pass
 
 class cl_buffer(cl_mem):
     """
@@ -2265,10 +2241,6 @@ class cl_program(void_p):
         See also :func:`clGetProgramBuildInfo`.
         """
         return clGetProgramBuildInfo(self, cl_program_build_info.CL_PROGRAM_BUILD_LOG, device)
-    def __del__(self):
-        try:
-            if self: clReleaseProgram(self)
-        except: pass
 
 @_wrapdll(cl_program, cl_program_info, size_t, void_p, P(size_t))
 def clGetProgramInfo(program, param_name):
@@ -2446,10 +2418,6 @@ class cl_kernel(void_p):
 
     Kernels are reference counted.
     """
-    def __del__(self):
-        try:
-            if self: clReleaseKernel(self)
-        except: pass
     def __repr__(self):
         try:
             return "<cl_kernel %s %s>" % (self.name, self.argtypes)
