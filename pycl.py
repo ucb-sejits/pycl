@@ -1790,16 +1790,16 @@ class cl_mem(void_p):
         try: return self._context
         except AttributeError:
             return clGetMemObjectInfo(self, cl_mem_info.CL_MEM_CONTEXT)
+    def empty_like_this(self):
+        """Creates an empty read/write buffer of the same size
+        in the same context and returns it."""
+        return clCreateBuffer(self.context, self.size)
 
 class cl_buffer(cl_mem):
     """
     A subclass of :class:`cl_mem` representing memory buffers.
     Create these with :func:`clCreateBuffer` or :func:`clCreateSubBuffer`
     """
-    def empty_like_this(self):
-        """Creates an empty read/write buffer of the same size
-        in the same context and returns it."""
-        return clCreateBuffer(self.context, self.size)
     @property
     def base(self):
         """Base memory object (for sub-buffers)"""
