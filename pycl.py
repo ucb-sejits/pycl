@@ -1790,16 +1790,16 @@ class cl_mem(void_p):
         try: return self._context
         except AttributeError:
             return clGetMemObjectInfo(self, cl_mem_info.CL_MEM_CONTEXT)
+    def empty_like_this(self):
+        """Creates an empty read/write buffer of the same size
+        in the same context and returns it."""
+        return clCreateBuffer(self.context, self.size)
 
 class cl_buffer(cl_mem):
     """
     A subclass of :class:`cl_mem` representing memory buffers.
     Create these with :func:`clCreateBuffer` or :func:`clCreateSubBuffer`
     """
-    def empty_like_this(self):
-        """Creates an empty read/write buffer of the same size
-        in the same context and returns it."""
-        return clCreateBuffer(self.context, self.size)
     @property
     def base(self):
         """Base memory object (for sub-buffers)"""
@@ -1871,7 +1871,7 @@ class cl_image(cl_mem):
 
 
 @_wrapdll(cl_context, cl_mem_flags, size_t, void_p, P(cl_errnum),
-          res=cl_buffer, err=_lastarg_errcheck)
+          res=cl_mem, err=_lastarg_errcheck)
 def clCreateBuffer(context, size, flags = cl_mem_flags.CL_MEM_READ_WRITE,
                    host_ptr = None):
     """
@@ -1901,7 +1901,7 @@ def clRetainMemObject(mem):
 def clReleaseMemObject(mem):
     clReleaseMemObject.call(mem)
 
-@_wrapdll(cl_command_queue, cl_buffer, cl_bool, size_t, size_t,
+@_wrapdll(cl_command_queue, cl_mem, cl_bool, size_t, size_t,
           void_p, cl_uint, P(cl_event), P(cl_event))
 def clEnqueueReadBuffer(queue, mem, pointer, size=None,
                         blocking=True, offset=0, wait_for=None):
@@ -1945,12 +1945,12 @@ def clEnqueueReadBuffer(queue, mem, pointer, size=None,
                              nevents, wait_array, byref(out_event))
     return out_event
 
-@_wrapdll(cl_command_queue, cl_buffer, cl_bool, size_t, size_t,
+@_wrapdll(cl_command_queue, cl_mem, cl_bool, size_t, size_t,
           void_p, cl_uint, P(cl_event), P(cl_event))
 def clEnqueueWriteBuffer(queue, mem, pointer, size=None,
                          blocking=True, offset=0, wait_for=None):
     """
-    Write to a :class:`cl_buffer` buffer from a location in host memory.
+    Write to a :class:`cl_mem` buffer from a location in host memory.
 
     See :func:`clEnqueueReadBuffer` for the meanings of the parameters.
     """
@@ -1962,7 +1962,7 @@ def clEnqueueWriteBuffer(queue, mem, pointer, size=None,
                               nevents, wait_array, byref(out_event))
     return out_event
 
-@_wrapdll(cl_command_queue, cl_buffer, cl_buffer, size_t, size_t,
+@_wrapdll(cl_command_queue, cl_mem, cl_mem, size_t, size_t,
           void_p, cl_uint, P(cl_event), P(cl_event))
 def clEnqueueCopyBuffer(queue, src_buffer, dst_buffer, src_offset=0, dst_offset=0,
                         size=None, wait_for=None):
@@ -1975,7 +1975,7 @@ def clEnqueueCopyBuffer(queue, src_buffer, dst_buffer, src_offset=0, dst_offset=
     return out_event
 
 
-@_wrapdll(cl_command_queue, cl_buffer, void_p, size_t, size_t,
+@_wrapdll(cl_command_queue, cl_mem, void_p, size_t, size_t,
           void_p, cl_uint, P(cl_event), P(cl_event))
 def clEnqueueFillBuffer(queue, mem, pattern, pattern_size=0, offset=0,
                         size=0, wait_for=None):
@@ -2035,7 +2035,7 @@ def clGetMemObjectInfo(mem, param_name):
     elif param_name == cl_mem_info.CL_MEM_ASSOCIATED_MEMOBJECT:
         try: return mem._base
         except AttributeError: pass
-        param_value = cl_buffer()
+        param_value = cl_mem()
         clGetMemObjectInfo.call(mem, param_name, sizeof(param_value),
                                 byref(param_value), None)
         if param_value: mem._base = param_value
@@ -2880,7 +2880,7 @@ except ImportError:
 
 if HAVE_OPENGL:
     @_wrapdll(cl_context, cl_mem_flags, GL.GLuint, P(cl_errnum),
-            res=cl_buffer, err=_lastarg_errcheck)
+            res=cl_mem, err=_lastarg_errcheck)
     def clCreateFromGLBuffer(context, bufobj, flags=cl_mem_flags.CL_MEM_READ_WRITE):
         return clCreateFromGLBuffer.call(context, flags, bufobj, byref(cl_errnum()))
 
@@ -2925,7 +2925,7 @@ def buffer_from_ndarray(queue, ary, buf=None, **kw):
       functions yet, so if the array isn't contiguous, a copy will be made.
       Note that the entirety of the provided array will be written, so be sure
       to slice it down to just the part you want to write.
-    :param buf: :class:`cl_buffer` object. If not provided, one the size
+    :param buf: :class:`cl_mem` object. If not provided, one the size
       of the array will be created. In any event, it should hopefully be large
       enough to hold the provided array.
     :returns: ``(buf, evt)``, where ``evt`` is the :class:`cl_event` returned
@@ -2952,7 +2952,7 @@ def buffer_to_ndarray(queue, buf, out=None, like=None,
     Reads from an OpenCL buffer into an ndarray.
 
     :param queue: The queue to put the read operation on.
-    :param buf: The :class:`cl_buffer` to read from
+    :param buf: The :class:`cl_mem` to read from
     :param out: The :class:`numpy.ndarray` to read into. If not
       provided, one will be created based on the following arguments.
       Unlike :func:`buffer_from_array`, this must currently be an actual
@@ -3072,6 +3072,7 @@ def main():
                 for ul in _device_info_counts:
                     print("       {:44s}: {}".format(ul, clGetDeviceInfo(d, ul)))
                 print("    Extensions: %s" % ", ".join(d.extensions))
+                print("    Queue properties: %s" % d.queue_properties)
 
 
 if __name__ == '__main__':
