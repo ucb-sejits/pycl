@@ -2872,6 +2872,13 @@ def clFinish(queue):
     clFinish.call(queue)
 
 
+@_wrapdll(cl_context, P(cl_errnum),
+          res=cl_event, err=_lastarg_errcheck)
+def clCreateUserEvent(context):
+    evt = clCreateUserEvent.call(context, byref(cl_errnum()))
+    return evt
+
+
 try:
     from OpenGL import GL
     HAVE_OPENGL = True
