@@ -2886,6 +2886,16 @@ except ImportError:
     HAVE_OPENGL = False
 
 if HAVE_OPENGL:
+    class cl_gl_object_type(cl_uint):
+        CL_GL_OBJECT_BUFFER            = 0x2000
+        CL_GL_OBJECT_TEXTURE2D         = 0x2001
+        CL_GL_OBJECT_TEXTURE3D         = 0x2002
+        CL_GL_OBJECT_RENDERBUFFER      = 0x2003
+        CL_GL_OBJECT_TEXTURE2D_ARRAY   = 0x200E
+        CL_GL_OBJECT_TEXTURE1D         = 0x200F
+        CL_GL_OBJECT_TEXTURE1D_ARRAY   = 0x2010
+        CL_GL_OBJECT_TEXTURE_BUFFER    = 0x2011
+
     @_wrapdll(cl_context, cl_mem_flags, GL.GLuint, P(cl_errnum),
             res=cl_mem, err=_lastarg_errcheck)
     def clCreateFromGLBuffer(context, bufobj, flags=cl_mem_flags.CL_MEM_READ_WRITE):
@@ -2908,6 +2918,12 @@ if HAVE_OPENGL:
         clEnqueueReleaseGLObjects.call(queue, len(mem_objs), mem_obj_array,
                 nevents, wait_array, byref(out_event))
         return out_event
+
+    @_wrapdll(cl_mem, P(cl_gl_object_type), P(GL.GLuint))
+    def clGetGLObjectInfo(mem_obj):
+        clgl_obj_type, gl_buf = cl_gl_object_type(), GL.GLuint()
+        clGetGLObjectInfo.call(mem_obj, byref(clgl_obj_type), byref(gl_buf))
+        return clgl_obj_type, gl_buf
 
 
 @_wrapdll(cl_command_queue, cl_uint, P(cl_mem), cl_mem_migration_flags,
