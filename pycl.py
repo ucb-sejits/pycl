@@ -2878,6 +2878,12 @@ def clCreateUserEvent(context):
     evt = clCreateUserEvent.call(context, byref(cl_errnum()))
     return evt
 
+@_wrapdll(cl_event, cl_profiling_info, size_t, void_p, P(size_t))
+def clGetEventProfilingInfo(event, param_name):
+    param_value = cl_ulong()
+    clGetEventProfilingInfo.call(event, param_name, sizeof(param_value), byref(param_value), None)
+    return param_value
+
 
 try:
     from OpenGL import GL
