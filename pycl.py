@@ -263,6 +263,11 @@ class cl_errnum(cl_enum):
     CL_MAP_FAILURE =                              -12
     CL_MISALIGNED_SUB_BUFFER_OFFSET =             -13
     CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST = -14
+    CL_COMPILE_PROGRAM_FAILURE =                  -15
+    CL_LINKER_NOT_AVAILABLE =                     -16
+    CL_LINK_PROGRAM_FAILURE =                     -17
+    CL_DEVICE_PARTITION_FAILED =                  -18
+    CL_KERNEL_ARG_INFO_NOT_AVAILABLE =            -19
     CL_INVALID_VALUE =                            -30
     CL_INVALID_DEVICE_TYPE =                      -31
     CL_INVALID_PLATFORM =                         -32
@@ -359,6 +364,10 @@ class cl_device_info(cl_uenum):
     CL_DEVICE_AVAILABLE =                         0x1027
     CL_DEVICE_COMPILER_AVAILABLE =                0x1028
     CL_DEVICE_EXECUTION_CAPABILITIES =            0x1029
+    CL_DEVICE_PARTITION_MAX_SUB_DEVICES =         0x1043
+    CL_DEVICE_PARTITION_PROPERTIES =              0x1044
+    CL_DEVICE_PARTITION_AFFINITY_DOMAIN =         0x1045
+    CL_DEVICE_PARTITION_TYPE =                    0x1046
     CL_DEVICE_QUEUE_PROPERTIES =                  0x102A
     CL_DEVICE_NAME =                              0x102B
     CL_DEVICE_VENDOR =                            0x102C
@@ -422,6 +431,18 @@ class cl_device_exec_capabilities(cl_bitfield):
     """
     CL_EXEC_KERNEL =                              (1 << 0)
     CL_EXEC_NATIVE_KERNEL =                       (1 << 1)
+
+class cl_device_partition_property(cl_bitfield):
+    CL_DEVICE_PARTITION_EQUALLY =                 0x1086
+    CL_DEVICE_PARTITION_BY_COUNTS =               0x1087
+    CL_DEVICE_PARTITION_BY_COUNTS_LIST_END =      0x0
+    CL_DEVICE_PARTITION_BY_AFFINITY_DOMAIN =      0x1088
+    CL_DEVICE_AFFINITY_DOMAIN_NUMA =              (1 << 0)
+    CL_DEVICE_AFFINITY_DOMAIN_L4_CACHE =          (1 << 1)
+    CL_DEVICE_AFFINITY_DOMAIN_L3_CACHE =          (1 << 2)
+    CL_DEVICE_AFFINITY_DOMAIN_L2_CACHE =          (1 << 3)
+    CL_DEVICE_AFFINITY_DOMAIN_L1_CACHE =          (1 << 4)
+    CL_DEVICE_AFFINITY_DOMAIN_NEXT_PARTITIONABLE = (1 << 5)
 
 class cl_command_queue_properties(cl_bitfield):
     """
@@ -1244,6 +1265,17 @@ def clGetDeviceIDs(platform=None,
     else:
         return ()
 
+@_wrapdll(cl_device, P(cl_device_partition_property), cl_uint, P(cl_device), P(cl_uint))
+def clCreateSubDevices(in_device, num_devices, properties=None):
+    if properties == None:
+        properties = [CL_DEVICE_PARTITION_BY_AFFINITY_DOMAIN, CL_DEVICE_AFFINITY_DOMAIN_NEXT_PARTITIONABLE, 0]
+    _properties = (cl_device_partition_property * len(properties))(*properties)
+    out_devices = (cl_device*num_devices)()
+    num_devices_ret = cl_uint()
+    print "call"         , (in_device, _properties, num_devices, out_devices, byref(num_devices_ret))
+    clCreateSubDevices.call(in_device, _properties, num_devices, out_devices, byref(num_devices_ret))
+    return tuple(out_devices[:num_devices_ret.value])
+
 # clGetDeviceInfo has a lot of different possible return types.
 # Anything not handled identified in one of these sets or in
 # a special case in the wrapper function is assumed to return a cl_uint.
@@ -1263,7 +1295,10 @@ _device_info_ulongs = frozenset((cl_device_info.CL_DEVICE_MAX_MEM_ALLOC_SIZE,
                                  cl_device_info.CL_DEVICE_GLOBAL_MEM_CACHE_SIZE,
                                  cl_device_info.CL_DEVICE_GLOBAL_MEM_SIZE,
                                  cl_device_info.CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE,
-                                 cl_device_info.CL_DEVICE_LOCAL_MEM_SIZE))
+                                 cl_device_info.CL_DEVICE_LOCAL_MEM_SIZE,
+                                 cl_device_info.CL_DEVICE_PARTITION_MAX_SUB_DEVICES,
+                                 cl_device_info.CL_DEVICE_PARTITION_AFFINITY_DOMAIN,
+                                 cl_device_info.CL_DEVICE_PARTITION_TYPE))
 
 _device_info_bools = frozenset((cl_device_info.CL_DEVICE_IMAGE_SUPPORT,
                                 cl_device_info.CL_DEVICE_HOST_UNIFIED_MEMORY,
