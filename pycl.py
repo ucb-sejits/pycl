@@ -1272,7 +1272,6 @@ def clCreateSubDevices(in_device, num_devices, properties=None):
     _properties = (cl_device_partition_property * len(properties))(*properties)
     out_devices = (cl_device*num_devices)()
     num_devices_ret = cl_uint()
-    print "call"         , (in_device, _properties, num_devices, out_devices, byref(num_devices_ret))
     clCreateSubDevices.call(in_device, _properties, num_devices, out_devices, byref(num_devices_ret))
     return tuple(out_devices[:num_devices_ret.value])
 
