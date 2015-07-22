@@ -2013,7 +2013,7 @@ def clEnqueueCopyBuffer(queue, src_buffer, dst_buffer, src_offset=0, dst_offset=
 @_wrapdll(cl_command_queue, cl_mem, void_p, size_t, size_t,
           void_p, cl_uint, P(cl_event), P(cl_event))
 def clEnqueueFillBuffer(queue, mem, pattern, pattern_size=0, offset=0,
-                        size=0, wait_for=None):
+                        size=None, wait_for=None):
     """
     Enqueues a command to fill a buffer object with a pattern of a given pattern size.
 
@@ -2023,9 +2023,10 @@ def clEnqueueFillBuffer(queue, mem, pattern, pattern_size=0, offset=0,
         size = clGetMemObjectInfo(mem, cl_mem_info.CL_MEM_SIZE)
     nevents, wait_array = _make_event_array(wait_for)
     out_event = cl_event()
-    clEnqueueWriteBuffer.call(queue, mem, pattern, pattern_size, offset, size,
+    clEnqueueFillBuffer.call(queue, mem, pattern, pattern_size, offset, size,
                               nevents, wait_array, byref(out_event))
     return out_event
+
 @_wrapdll(cl_mem, cl_mem_info, size_t, void_p, P(size_t))
 def clGetMemObjectInfo(mem, param_name):
     """
