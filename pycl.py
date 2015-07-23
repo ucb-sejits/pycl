@@ -3107,7 +3107,7 @@ _make_all()
 
 
 def main():
-    import sys
+    import sys, itertools
     if '--doctest' in sys.argv:
         import doctest
         doctest.testmod()
@@ -3127,14 +3127,11 @@ def main():
                 print("       Version: %s" % d.version)
                 print("       Profile: %s" % d.profile)
                 print("        Driver: %s" % d.driver_version)
-                for ul in _device_info_ulongs:
-                    print("       {:44s}: {}".format(ul, clGetDeviceInfo(d, ul)))
-                for ul in _device_info_sizes:
-                    print("       {:44s}: {}".format(ul, clGetDeviceInfo(d, ul)))
-                for ul in _device_info_bools:
-                    print("       {:44s}: {}".format(ul, clGetDeviceInfo(d, ul)))
-                for ul in _device_info_counts:
-                    print("       {:44s}: {}".format(ul, clGetDeviceInfo(d, ul)))
+                for ul in itertools.chain(_device_info_ulongs, _device_info_sizes, _device_info_bools, _device_info_counts):
+                    try:
+                        print("       {:44s}: {}".format(ul, clGetDeviceInfo(d, ul)))
+                    except InvalidValueError:
+                        print("       {:44s}: {}".format(ul, "n/a"))
                 print("    Extensions: %s" % ", ".join(d.extensions))
                 print("    Queue properties: %s" % d.queue_properties)
 
