@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 """
 
-Brief usage example:
-
-.. code-block:: python
+Brief usage example::
 
     from pycl import *
     from array import array

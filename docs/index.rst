@@ -6,7 +6,7 @@
 .. toctree::
    :hidden:
 
-.. include:: ../README.txt
+.. include:: ../README.rst
 
 Module API Reference
 ====================
