@@ -3,26 +3,28 @@
 
 Brief usage example:
 
->>> from array import array
->>> source = '''
-... kernel void mxplusb(float m, global float *x, float b, global float *out) {
-...     int i = get_global_id(0);
-...     out[i] = m*x[i]+b;
-... }
-... '''
->>> ctx = clCreateContext()
->>> queue = clCreateCommandQueue(ctx)
->>> program = clCreateProgramWithSource(ctx, source).build()
->>> kernel = program['mxplusb']
->>> kernel.argtypes = (cl_float, cl_mem, cl_float, cl_mem)
->>> x = array('f', range(100))
->>> x_buf, in_evt = buffer_from_pyarray(queue, x, blocking=False)
->>> y_buf = x_buf.empty_like_this()
->>> run_evt = kernel(2, x_buf, 5, y_buf).on(queue, len(x), wait_for=in_evt)
->>> y, evt = buffer_to_pyarray(queue, y_buf, wait_for=run_evt, like=x)
->>> evt.wait()
->>> y[0:10]
-array('f', [5.0, 7.0, 9.0, 11.0, 13.0, 15.0, 17.0, 19.0, 21.0, 23.0])
+.. code-block:: python
+
+    from pycl import *
+    from array import array
+    source = '''
+    kernel void mxplusb(float m, global float *x, float b, global float *out) {
+        int i = get_global_id(0);
+        out[i] = m*x[i]+b;
+    }
+    '''
+    ctx = clCreateContext()
+    queue = clCreateCommandQueue(ctx)
+    program = clCreateProgramWithSource(ctx, source).build()
+    kernel = program['mxplusb']
+    kernel.argtypes = (cl_float, cl_mem, cl_float, cl_mem)
+    x = array('f', range(10))
+    x_buf, in_evt = buffer_from_pyarray(queue, x, blocking=False)
+    y_buf = x_buf.empty_like_this()
+    run_evt = kernel(2, x_buf, 5, y_buf).on(queue, len(x), wait_for=in_evt)
+    y, evt = buffer_to_pyarray(queue, y_buf, wait_for=run_evt, like=x)
+    evt.wait()
+    print y
 
 For Numpy users, see :func:`buffer_from_ndarray` and
 :func:`buffer_to_ndarray`.
