@@ -41,7 +41,7 @@ download and install an appropriate platform from AMD_, Intel_, or
 NVIDIA_.
 
 .. _PyOpenCL: http://mathema.tician.de/software/pyopencl
-.. _repository: https://bitbucket.org/kw/pycl
+.. _repository: https://github.com/ucb-sejits/pycl
 .. _PyPI: http://pypi.python.org/pypi/pycl/
 .. _AMD: http://developer.amd.com/zones/OpenCLZone/pages/toolsandlibraries.aspx
 .. _Intel: http://software.intel.com/en-us/articles/download-intel-opencl-sdk/
