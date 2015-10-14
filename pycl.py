@@ -2001,7 +2001,7 @@ def clEnqueueWriteBuffer(queue, mem, pointer, size=None,
 def clEnqueueCopyBuffer(queue, src_buffer, dst_buffer, src_offset=0, dst_offset=0,
                         size=None, wait_for=None):
     if size is None:
-        size = clGetMemObjectInfo(dst_buffer, cl_mem_info.CL_MEM_SIZE)
+        size = clGetMemObjectInfo(src_buffer, cl_mem_info.CL_MEM_SIZE)
     nevents, wait_array = _make_event_array(wait_for)
     out_event = cl_event()
     clEnqueueCopyBuffer.call(queue, src_buffer, dst_buffer, src_offset, dst_offset,
@@ -2914,12 +2914,23 @@ def clCreateUserEvent(context):
     evt = clCreateUserEvent.call(context, byref(cl_errnum()))
     return evt
 
+@_wrapdll(cl_event, cl_command_execution_status)
+def clSetUserEventStatus(event, status):
+    evt = clSetUserEventStatus.call(event, status)
+    return evt
+
 @_wrapdll(cl_event, cl_profiling_info, size_t, void_p, P(size_t))
 def clGetEventProfilingInfo(event, param_name):
     param_value = cl_ulong()
     clGetEventProfilingInfo.call(event, param_name, sizeof(param_value), byref(param_value), None)
     return param_value
 
+@_wrapdll(cl_command_queue, cl_uint, P(cl_event), P(cl_event))
+def clEnqueueBarrierWithWaitList(queue, wait_for=None):
+    out_event = cl_event()
+    nevents, wait_array = _make_event_array(wait_for)
+    clEnqueueBarrierWithWaitList.call(queue, nevents, wait_array, byref(out_event))
+    return out_event
 
 try:
     from OpenGL import GL
