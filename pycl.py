@@ -2001,7 +2001,7 @@ def clEnqueueWriteBuffer(queue, mem, pointer, size=None,
 def clEnqueueCopyBuffer(queue, src_buffer, dst_buffer, src_offset=0, dst_offset=0,
                         size=None, wait_for=None):
     if size is None:
-        size = clGetMemObjectInfo(src_buffer, cl_mem_info.CL_MEM_SIZE)
+        size = clGetMemObjectInfo(src_buffer, cl_mem_info.CL_MEM_SIZE) - src_offset
     nevents, wait_array = _make_event_array(wait_for)
     out_event = cl_event()
     clEnqueueCopyBuffer.call(queue, src_buffer, dst_buffer, src_offset, dst_offset,
