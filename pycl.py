@@ -1927,6 +1927,13 @@ def clCreateBuffer(context, size, flags = cl_mem_flags.CL_MEM_READ_WRITE,
     mem._type = cl_mem_object_type.CL_MEM_OBJECT_BUFFER
     return mem
 
+@_wrapdll(cl_mem, cl_mem_flags, cl_buffer_create_type, void_p, P(cl_errnum),
+          res=cl_mem, err=_lastarg_errcheck)
+def clCreateSubBuffer(mem, region, flags=cl_mem_flags.CL_MEM_READ_WRITE):
+    assert isinstance(region, cl_buffer_region)
+    create_type = cl_buffer_create_type.CL_BUFFER_CREATE_TYPE_REGION
+    return clCreateSubBuffer.call(mem, flags, create_type, byref(region), byref(cl_errnum()))
+
 @_wrapdll(cl_mem)
 def clRetainMemObject(mem):
     clRetainMemObject.call(mem)
