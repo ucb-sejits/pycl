@@ -437,6 +437,9 @@ class cl_device_partition_property(cl_bitfield):
     CL_DEVICE_PARTITION_BY_COUNTS =               0x1087
     CL_DEVICE_PARTITION_BY_COUNTS_LIST_END =      0x0
     CL_DEVICE_PARTITION_BY_AFFINITY_DOMAIN =      0x1088
+
+
+class cl_device_affinity_domain(cl_bitfield):
     CL_DEVICE_AFFINITY_DOMAIN_NUMA =              (1 << 0)
     CL_DEVICE_AFFINITY_DOMAIN_L4_CACHE =          (1 << 1)
     CL_DEVICE_AFFINITY_DOMAIN_L3_CACHE =          (1 << 2)
@@ -1312,6 +1315,10 @@ _device_info_strings = frozenset((cl_device_info.CL_DEVICE_NAME,
                                   cl_device_info.CL_DEVICE_VERSION,
                                   cl_device_info.CL_DEVICE_EXTENSIONS))
 
+_device_fp_configs = frozenset((cl_device_info.CL_DEVICE_DOUBLE_FP_CONFIG,
+                                  cl_device_info.CL_DEVICE_SINGLE_FP_CONFIG,
+                                  cl_device_info.CL_DEVICE_HALF_FP_CONFIG))
+
 @_wrapdll(cl_device, cl_device_info, size_t, void_p, P(size_t))
 def clGetDeviceInfo(device, param_name):
     """
@@ -1369,7 +1376,7 @@ def clGetDeviceInfo(device, param_name):
             return str(param_value.value, 'utf-8')
         else:
             return param_value.value
-    elif param_name == cl_device_info.CL_DEVICE_SINGLE_FP_CONFIG:
+    elif param_name in _device_fp_configs:
         param_value = cl_device_fp_config()
         clGetDeviceInfo.call(device, param_name, sizeof(param_value),
                              byref(param_value), None)
