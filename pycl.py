@@ -1408,7 +1408,7 @@ def clGetDeviceInfo(device, param_name):
             elem_ctype = ctype._type_
             n = len(data) / sizeof(elem_ctype)
             arr = (elem_ctype*n).from_buffer(data)
-            value = [infer(e, elem_ctype) for e in arr]
+            value = tuple(infer(e, elem_ctype) for e in arr)
         elif isinstance(data, ctypes.Array):
             assert len(data) == sizeof(ctype)
             v = ctype.from_buffer(data)
