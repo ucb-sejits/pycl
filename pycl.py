@@ -322,72 +322,82 @@ class cl_device_info(cl_uenum):
     The set of possible parameter names used
     with the :func:`clGetDeviceInfo` function.
     """
-    CL_DEVICE_TYPE =                              0x1000
-    CL_DEVICE_VENDOR_ID =                         0x1001
-    CL_DEVICE_MAX_COMPUTE_UNITS =                 0x1002
-    CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS =          0x1003
-    CL_DEVICE_MAX_WORK_GROUP_SIZE =               0x1004
-    CL_DEVICE_MAX_WORK_ITEM_SIZES =               0x1005
-    CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR =       0x1006
-    CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT =      0x1007
-    CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT =        0x1008
-    CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG =       0x1009
-    CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT =      0x100A
-    CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE =     0x100B
-    CL_DEVICE_MAX_CLOCK_FREQUENCY =               0x100C
-    CL_DEVICE_ADDRESS_BITS =                      0x100D
-    CL_DEVICE_MAX_READ_IMAGE_ARGS =               0x100E
-    CL_DEVICE_MAX_WRITE_IMAGE_ARGS =              0x100F
-    CL_DEVICE_MAX_MEM_ALLOC_SIZE =                0x1010
-    CL_DEVICE_IMAGE2D_MAX_WIDTH =                 0x1011
-    CL_DEVICE_IMAGE2D_MAX_HEIGHT =                0x1012
-    CL_DEVICE_IMAGE3D_MAX_WIDTH =                 0x1013
-    CL_DEVICE_IMAGE3D_MAX_HEIGHT =                0x1014
-    CL_DEVICE_IMAGE3D_MAX_DEPTH =                 0x1015
-    CL_DEVICE_IMAGE_SUPPORT =                     0x1016
-    CL_DEVICE_MAX_PARAMETER_SIZE =                0x1017
-    CL_DEVICE_MAX_SAMPLERS =                      0x1018
-    CL_DEVICE_MEM_BASE_ADDR_ALIGN =               0x1019
-    CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE =          0x101A
-    CL_DEVICE_SINGLE_FP_CONFIG =                  0x101B
-    CL_DEVICE_GLOBAL_MEM_CACHE_TYPE =             0x101C
-    CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE =         0x101D
-    CL_DEVICE_GLOBAL_MEM_CACHE_SIZE =             0x101E
-    CL_DEVICE_GLOBAL_MEM_SIZE =                   0x101F
-    CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE =          0x1020
-    CL_DEVICE_MAX_CONSTANT_ARGS =                 0x1021
-    CL_DEVICE_LOCAL_MEM_TYPE =                    0x1022
-    CL_DEVICE_LOCAL_MEM_SIZE =                    0x1023
-    CL_DEVICE_ERROR_CORRECTION_SUPPORT =          0x1024
-    CL_DEVICE_PROFILING_TIMER_RESOLUTION =        0x1025
-    CL_DEVICE_ENDIAN_LITTLE =                     0x1026
-    CL_DEVICE_AVAILABLE =                         0x1027
-    CL_DEVICE_COMPILER_AVAILABLE =                0x1028
-    CL_DEVICE_EXECUTION_CAPABILITIES =            0x1029
-    CL_DEVICE_PARTITION_MAX_SUB_DEVICES =         0x1043
-    CL_DEVICE_PARTITION_PROPERTIES =              0x1044
-    CL_DEVICE_PARTITION_AFFINITY_DOMAIN =         0x1045
-    CL_DEVICE_PARTITION_TYPE =                    0x1046
-    CL_DEVICE_QUEUE_PROPERTIES =                  0x102A
-    CL_DEVICE_NAME =                              0x102B
-    CL_DEVICE_VENDOR =                            0x102C
-    CL_DRIVER_VERSION =                           0x102D
-    CL_DEVICE_PROFILE =                           0x102E
-    CL_DEVICE_VERSION =                           0x102F
-    CL_DEVICE_EXTENSIONS =                        0x1030
-    CL_DEVICE_PLATFORM =                          0x1031
-    CL_DEVICE_DOUBLE_FP_CONFIG =                  0x1032
-    CL_DEVICE_HALF_FP_CONFIG =                    0x1033
-    CL_DEVICE_PREFERRED_VECTOR_WIDTH_HALF =       0x1034
-    CL_DEVICE_HOST_UNIFIED_MEMORY =               0x1035
-    CL_DEVICE_NATIVE_VECTOR_WIDTH_CHAR =          0x1036
-    CL_DEVICE_NATIVE_VECTOR_WIDTH_SHORT =         0x1037
-    CL_DEVICE_NATIVE_VECTOR_WIDTH_INT =           0x1038
-    CL_DEVICE_NATIVE_VECTOR_WIDTH_LONG =          0x1039
-    CL_DEVICE_NATIVE_VECTOR_WIDTH_FLOAT =         0x103A
-    CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE =        0x103B
-    CL_DEVICE_NATIVE_VECTOR_WIDTH_HALF =          0x103C
-    CL_DEVICE_OPENCL_C_VERSION =                  0x103D
+    CL_DEVICE_TYPE                              = 0x1000
+    CL_DEVICE_VENDOR_ID                         = 0x1001
+    CL_DEVICE_MAX_COMPUTE_UNITS                 = 0x1002
+    CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS          = 0x1003
+    CL_DEVICE_MAX_WORK_GROUP_SIZE               = 0x1004
+    CL_DEVICE_MAX_WORK_ITEM_SIZES               = 0x1005
+    CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR       = 0x1006
+    CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT      = 0x1007
+    CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT        = 0x1008
+    CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG       = 0x1009
+    CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT      = 0x100A
+    CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE     = 0x100B
+    CL_DEVICE_MAX_CLOCK_FREQUENCY               = 0x100C
+    CL_DEVICE_ADDRESS_BITS                      = 0x100D
+    CL_DEVICE_MAX_READ_IMAGE_ARGS               = 0x100E
+    CL_DEVICE_MAX_WRITE_IMAGE_ARGS              = 0x100F
+    CL_DEVICE_MAX_MEM_ALLOC_SIZE                = 0x1010
+    CL_DEVICE_IMAGE2D_MAX_WIDTH                 = 0x1011
+    CL_DEVICE_IMAGE2D_MAX_HEIGHT                = 0x1012
+    CL_DEVICE_IMAGE3D_MAX_WIDTH                 = 0x1013
+    CL_DEVICE_IMAGE3D_MAX_HEIGHT                = 0x1014
+    CL_DEVICE_IMAGE3D_MAX_DEPTH                 = 0x1015
+    CL_DEVICE_IMAGE_SUPPORT                     = 0x1016
+    CL_DEVICE_MAX_PARAMETER_SIZE                = 0x1017
+    CL_DEVICE_MAX_SAMPLERS                      = 0x1018
+    CL_DEVICE_MEM_BASE_ADDR_ALIGN               = 0x1019
+    CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE          = 0x101A
+    CL_DEVICE_SINGLE_FP_CONFIG                  = 0x101B
+    CL_DEVICE_GLOBAL_MEM_CACHE_TYPE             = 0x101C
+    CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE         = 0x101D
+    CL_DEVICE_GLOBAL_MEM_CACHE_SIZE             = 0x101E
+    CL_DEVICE_GLOBAL_MEM_SIZE                   = 0x101F
+    CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE          = 0x1020
+    CL_DEVICE_MAX_CONSTANT_ARGS                 = 0x1021
+    CL_DEVICE_LOCAL_MEM_TYPE                    = 0x1022
+    CL_DEVICE_LOCAL_MEM_SIZE                    = 0x1023
+    CL_DEVICE_ERROR_CORRECTION_SUPPORT          = 0x1024
+    CL_DEVICE_PROFILING_TIMER_RESOLUTION        = 0x1025
+    CL_DEVICE_ENDIAN_LITTLE                     = 0x1026
+    CL_DEVICE_AVAILABLE                         = 0x1027
+    CL_DEVICE_COMPILER_AVAILABLE                = 0x1028
+    CL_DEVICE_EXECUTION_CAPABILITIES            = 0x1029
+    CL_DEVICE_QUEUE_PROPERTIES                  = 0x102A
+    CL_DEVICE_NAME                              = 0x102B
+    CL_DEVICE_VENDOR                            = 0x102C
+    CL_DRIVER_VERSION                           = 0x102D
+    CL_DEVICE_PROFILE                           = 0x102E
+    CL_DEVICE_VERSION                           = 0x102F
+    CL_DEVICE_EXTENSIONS                        = 0x1030
+    CL_DEVICE_PLATFORM                          = 0x1031
+    CL_DEVICE_DOUBLE_FP_CONFIG                  = 0x1032
+    CL_DEVICE_HALF_FP_CONFIG                    = 0x1033
+    CL_DEVICE_PREFERRED_VECTOR_WIDTH_HALF       = 0x1034
+    CL_DEVICE_HOST_UNIFIED_MEMORY               = 0x1035
+    CL_DEVICE_NATIVE_VECTOR_WIDTH_CHAR          = 0x1036
+    CL_DEVICE_NATIVE_VECTOR_WIDTH_SHORT         = 0x1037
+    CL_DEVICE_NATIVE_VECTOR_WIDTH_INT           = 0x1038
+    CL_DEVICE_NATIVE_VECTOR_WIDTH_LONG          = 0x1039
+    CL_DEVICE_NATIVE_VECTOR_WIDTH_FLOAT         = 0x103A
+    CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE        = 0x103B
+    CL_DEVICE_NATIVE_VECTOR_WIDTH_HALF          = 0x103C
+    CL_DEVICE_OPENCL_C_VERSION                  = 0x103D
+    CL_DEVICE_LINKER_AVAILABLE                  = 0x103E
+    CL_DEVICE_BUILT_IN_KERNELS                  = 0x103F
+    CL_DEVICE_IMAGE_MAX_BUFFER_SIZE             = 0x1040
+    CL_DEVICE_IMAGE_MAX_ARRAY_SIZE              = 0x1041
+    CL_DEVICE_PARENT_DEVICE                     = 0x1042
+    CL_DEVICE_PARTITION_MAX_SUB_DEVICES         = 0x1043
+    CL_DEVICE_PARTITION_PROPERTIES              = 0x1044
+    CL_DEVICE_PARTITION_AFFINITY_DOMAIN         = 0x1045
+    CL_DEVICE_PARTITION_TYPE                    = 0x1046
+    CL_DEVICE_REFERENCE_COUNT                   = 0x1047
+    CL_DEVICE_PREFERRED_INTEROP_USER_SYNC       = 0x1048
+    CL_DEVICE_PRINTF_BUFFER_SIZE                = 0x1049
+    CL_DEVICE_IMAGE_PITCH_ALIGNMENT             = 0x104A
+    CL_DEVICE_IMAGE_BASE_ADDRESS_ALIGNMENT      = 0x104B
 
 class cl_device_fp_config(cl_bitfield):
     """
@@ -433,9 +443,9 @@ class cl_device_exec_capabilities(cl_bitfield):
     CL_EXEC_NATIVE_KERNEL =                       (1 << 1)
 
 class cl_device_partition_property(cl_bitfield):
+    CL_DEVICE_PARTITION_BY_COUNTS_LIST_END =      0x0
     CL_DEVICE_PARTITION_EQUALLY =                 0x1086
     CL_DEVICE_PARTITION_BY_COUNTS =               0x1087
-    CL_DEVICE_PARTITION_BY_COUNTS_LIST_END =      0x0
     CL_DEVICE_PARTITION_BY_AFFINITY_DOMAIN =      0x1088
 
 
@@ -1279,45 +1289,85 @@ def clCreateSubDevices(in_device, num_devices, properties=None):
     return tuple(out_devices[:num_devices_ret.value])
 
 # clGetDeviceInfo has a lot of different possible return types.
-# Anything not handled identified in one of these sets or in
-# a special case in the wrapper function is assumed to return a cl_uint.
-
-_device_info_sizes = frozenset((cl_device_info.CL_DEVICE_MAX_WORK_GROUP_SIZE,
-                                cl_device_info.CL_DEVICE_IMAGE2D_MAX_WIDTH,
-                                cl_device_info.CL_DEVICE_IMAGE2D_MAX_HEIGHT,
-                                cl_device_info.CL_DEVICE_IMAGE3D_MAX_WIDTH,
-                                cl_device_info.CL_DEVICE_IMAGE3D_MAX_DEPTH,
-                                cl_device_info.CL_DEVICE_MAX_PARAMETER_SIZE,
-                                cl_device_info.CL_DEVICE_PROFILING_TIMER_RESOLUTION))
-
-_device_info_counts = frozenset((cl_device_info.CL_DEVICE_MAX_COMPUTE_UNITS,
-                                 cl_device_info.CL_DEVICE_MAX_WORK_ITEM_SIZES))
-
-_device_info_ulongs = frozenset((cl_device_info.CL_DEVICE_MAX_MEM_ALLOC_SIZE,
-                                 cl_device_info.CL_DEVICE_GLOBAL_MEM_CACHE_SIZE,
-                                 cl_device_info.CL_DEVICE_GLOBAL_MEM_SIZE,
-                                 cl_device_info.CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE,
-                                 cl_device_info.CL_DEVICE_LOCAL_MEM_SIZE,
-                                 cl_device_info.CL_DEVICE_PARTITION_MAX_SUB_DEVICES,
-                                 cl_device_info.CL_DEVICE_PARTITION_AFFINITY_DOMAIN,
-                                 cl_device_info.CL_DEVICE_PARTITION_TYPE))
-
-_device_info_bools = frozenset((cl_device_info.CL_DEVICE_IMAGE_SUPPORT,
-                                cl_device_info.CL_DEVICE_HOST_UNIFIED_MEMORY,
-                                cl_device_info.CL_DEVICE_ENDIAN_LITTLE,
-                                cl_device_info.CL_DEVICE_AVAILABLE,
-                                cl_device_info.CL_DEVICE_COMPILER_AVAILABLE))
-
-_device_info_strings = frozenset((cl_device_info.CL_DEVICE_NAME,
-                                  cl_device_info.CL_DEVICE_VENDOR,
-                                  cl_device_info.CL_DRIVER_VERSION,
-                                  cl_device_info.CL_DEVICE_PROFILE,
-                                  cl_device_info.CL_DEVICE_VERSION,
-                                  cl_device_info.CL_DEVICE_EXTENSIONS))
-
-_device_fp_configs = frozenset((cl_device_info.CL_DEVICE_DOUBLE_FP_CONFIG,
-                                  cl_device_info.CL_DEVICE_SINGLE_FP_CONFIG,
-                                  cl_device_info.CL_DEVICE_HALF_FP_CONFIG))
+from ctypes import sizeof
+_device_info_types = {
+    cl_device_info.CL_DEVICE_ADDRESS_BITS         : cl_uint,
+    cl_device_info.CL_DEVICE_AVAILABLE            : cl_bool,
+    cl_device_info.CL_DEVICE_BUILT_IN_KERNELS     : char_p,
+    cl_device_info.CL_DEVICE_COMPILER_AVAILABLE   : cl_bool,
+    cl_device_info.CL_DEVICE_DOUBLE_FP_CONFIG     : cl_device_fp_config,
+    cl_device_info.CL_DEVICE_ENDIAN_LITTLE        : cl_bool,
+    cl_device_info.CL_DEVICE_ERROR_CORRECTION_SUPPORT : cl_bool,
+    cl_device_info.CL_DEVICE_EXECUTION_CAPABILITIES : cl_device_exec_capabilities,
+    cl_device_info.CL_DEVICE_EXTENSIONS           : char_p,
+    cl_device_info.CL_DEVICE_GLOBAL_MEM_CACHE_SIZE: cl_ulong,
+    cl_device_info.CL_DEVICE_GLOBAL_MEM_CACHE_TYPE: cl_device_mem_cache_type,
+    cl_device_info.CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE : cl_uint,
+    cl_device_info.CL_DEVICE_GLOBAL_MEM_SIZE      : cl_ulong,
+    cl_device_info.CL_DEVICE_HALF_FP_CONFIG       : cl_device_fp_config,
+    cl_device_info.CL_DEVICE_HOST_UNIFIED_MEMORY  : cl_bool,
+    cl_device_info.CL_DEVICE_IMAGE_SUPPORT        : cl_bool,
+    cl_device_info.CL_DEVICE_IMAGE2D_MAX_HEIGHT   : size_t,
+    cl_device_info.CL_DEVICE_IMAGE2D_MAX_WIDTH    : size_t,
+    cl_device_info.CL_DEVICE_IMAGE3D_MAX_DEPTH    : size_t,
+    cl_device_info.CL_DEVICE_IMAGE3D_MAX_HEIGHT   : size_t,
+    cl_device_info.CL_DEVICE_IMAGE3D_MAX_WIDTH    : size_t,
+    cl_device_info.CL_DEVICE_IMAGE_MAX_BUFFER_SIZE : size_t,
+    cl_device_info.CL_DEVICE_IMAGE_MAX_ARRAY_SIZE : size_t,
+    cl_device_info.CL_DEVICE_LINKER_AVAILABLE     : cl_bool,
+    cl_device_info.CL_DEVICE_LOCAL_MEM_SIZE       : cl_ulong,
+    cl_device_info.CL_DEVICE_LOCAL_MEM_TYPE       : cl_device_local_mem_type,
+    cl_device_info.CL_DEVICE_MAX_CLOCK_FREQUENCY  : cl_uint,
+    cl_device_info.CL_DEVICE_MAX_COMPUTE_UNITS    : cl_uint,
+    cl_device_info.CL_DEVICE_MAX_CONSTANT_ARGS    : cl_uint,
+    cl_device_info.CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE : cl_ulong,
+    cl_device_info.CL_DEVICE_MAX_MEM_ALLOC_SIZE   : cl_ulong,
+    cl_device_info.CL_DEVICE_MAX_PARAMETER_SIZE   : size_t,
+    cl_device_info.CL_DEVICE_MAX_READ_IMAGE_ARGS  : cl_uint,
+    cl_device_info.CL_DEVICE_MAX_SAMPLERS         : cl_uint,
+    cl_device_info.CL_DEVICE_MAX_WORK_GROUP_SIZE  : size_t,
+    cl_device_info.CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS : cl_uint,
+    cl_device_info.CL_DEVICE_MAX_WORK_ITEM_SIZES  : P(size_t),
+    cl_device_info.CL_DEVICE_MAX_WRITE_IMAGE_ARGS : cl_uint,
+    cl_device_info.CL_DEVICE_MEM_BASE_ADDR_ALIGN  : cl_uint,
+    cl_device_info.CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE : cl_uint,
+    cl_device_info.CL_DEVICE_NAME                 : char_p,
+    cl_device_info.CL_DEVICE_NATIVE_VECTOR_WIDTH_CHAR : cl_uint,
+    cl_device_info.CL_DEVICE_NATIVE_VECTOR_WIDTH_SHORT : cl_uint,
+    cl_device_info.CL_DEVICE_NATIVE_VECTOR_WIDTH_INT : cl_uint,
+    cl_device_info.CL_DEVICE_NATIVE_VECTOR_WIDTH_LONG : cl_uint,
+    cl_device_info.CL_DEVICE_NATIVE_VECTOR_WIDTH_FLOAT : cl_uint,
+    cl_device_info.CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE : cl_uint,
+    cl_device_info.CL_DEVICE_NATIVE_VECTOR_WIDTH_HALF : cl_uint,
+    cl_device_info.CL_DEVICE_OPENCL_C_VERSION     : char_p,
+    cl_device_info.CL_DEVICE_PARENT_DEVICE        : cl_device,
+    cl_device_info.CL_DEVICE_PARTITION_MAX_SUB_DEVICES : cl_uint,
+    cl_device_info.CL_DEVICE_PARTITION_PROPERTIES : P(cl_device_partition_property),
+    cl_device_info.CL_DEVICE_PARTITION_AFFINITY_DOMAIN : cl_device_affinity_domain,
+    cl_device_info.CL_DEVICE_PARTITION_TYPE       : cl_device_partition_property,
+    cl_device_info.CL_DEVICE_PLATFORM             : cl_platform,
+    cl_device_info.CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR : cl_uint,
+    cl_device_info.CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT : cl_uint,
+    cl_device_info.CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT : cl_uint,
+    cl_device_info.CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG : cl_uint,
+    cl_device_info.CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT : cl_uint,
+    cl_device_info.CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE : cl_uint,
+    cl_device_info.CL_DEVICE_PREFERRED_VECTOR_WIDTH_HALF : cl_uint,
+    cl_device_info.CL_DEVICE_PRINTF_BUFFER_SIZE   : size_t,
+    cl_device_info.CL_DEVICE_PREFERRED_INTEROP_USER_SYNC : cl_bool,
+    cl_device_info.CL_DEVICE_PROFILE              : char_p,
+    cl_device_info.CL_DEVICE_PROFILING_TIMER_RESOLUTION : size_t,
+    cl_device_info.CL_DEVICE_QUEUE_PROPERTIES     : cl_command_queue_properties,
+    cl_device_info.CL_DEVICE_REFERENCE_COUNT      : cl_uint,
+    cl_device_info.CL_DEVICE_SINGLE_FP_CONFIG     : cl_device_fp_config,
+    cl_device_info.CL_DEVICE_TYPE                 : cl_device_type,
+    cl_device_info.CL_DEVICE_VENDOR               : char_p,
+    cl_device_info.CL_DEVICE_VENDOR_ID            : cl_uint,
+    cl_device_info.CL_DEVICE_VERSION              : char_p,
+    cl_device_info.CL_DRIVER_VERSION              : char_p,
+    cl_device_info.CL_DEVICE_IMAGE_PITCH_ALIGNMENT : cl_uint, # guessed. not in docs
+    cl_device_info.CL_DEVICE_IMAGE_BASE_ADDRESS_ALIGNMENT : cl_uint, # guessed. not in docs
+}
 
 @_wrapdll(cl_device, cl_device_info, size_t, void_p, P(size_t))
 def clGetDeviceInfo(device, param_name):
@@ -1345,80 +1395,37 @@ def clGetDeviceInfo(device, param_name):
     '...'
     >>> d.extensions                              # doctest: +ELLIPSIS
     [...]
-
     """
-    if param_name == cl_device_info.CL_DEVICE_TYPE:
-        param_value = cl_device_type()
-        clGetDeviceInfo.call(device, param_name, sizeof(param_value),
-                             byref(param_value), None)
-        return param_value
-    elif param_name in _device_info_sizes:
-        param_value = size_t()
-        clGetDeviceInfo.call(device, param_name, sizeof(param_value),
-                             byref(param_value), None)
-        return int(param_value.value)
-    elif param_name in _device_info_ulongs:
-        param_value = cl_ulong()
-        clGetDeviceInfo.call(device, param_name, sizeof(param_value),
-                             byref(param_value), None)
-        return int(param_value.value)
-    elif param_name in _device_info_bools:
-        param_value = cl_bool()
-        clGetDeviceInfo.call(device, param_name, sizeof(param_value),
-                             byref(param_value), None)
-        return bool(param_value.value)
-    elif param_name in _device_info_strings:
-        sz = size_t()
-        clGetDeviceInfo.call(device, param_name, 0, None, byref(sz))
-        param_value = create_string_buffer(sz.value)
-        clGetDeviceInfo.call(device, param_name, sz, param_value, None)
-        if sys.version_info[0] > 2:
-            return str(param_value.value, 'utf-8')
+    sz = size_t()
+    clGetDeviceInfo.call(device, param_name, 0, None, byref(sz))
+    data = ctypes.create_string_buffer(sz.value)
+    clGetDeviceInfo.call(device, param_name, sizeof(data), 
+                         byref(data), None)
+    def infer(data, ctype):
+        if ctype == char_p: # string
+            value = cast(data, ctype).value
+        elif issubclass(ctype, _ctypes._Pointer): # array
+            elem_ctype = ctype._type_
+            n = len(data) / sizeof(elem_ctype)
+            arr = (elem_ctype*n).from_buffer(data)
+            value = [infer(e, elem_ctype) for e in arr]
+        elif isinstance(data, ctypes.Array):
+            assert len(data) == sizeof(ctype)
+            v = ctype.from_buffer(data)
+            value = infer(v, ctype)
         else:
-            return param_value.value
-    elif param_name in _device_fp_configs:
-        param_value = cl_device_fp_config()
-        clGetDeviceInfo.call(device, param_name, sizeof(param_value),
-                             byref(param_value), None)
-        return param_value
-    elif param_name == cl_device_info.CL_DEVICE_GLOBAL_MEM_CACHE_TYPE:
-        param_value = cl_device_mem_cache_type()
-        clGetDeviceInfo.call(device, param_name, sizeof(param_value),
-                             byref(param_value), None)
-        return param_value
-    elif param_name == cl_device_info.CL_DEVICE_LOCAL_MEM_TYPE:
-        param_value = cl_device_local_mem_type()
-        clGetDeviceInfo.call(device, param_name, sizeof(param_value),
-                             byref(param_value), None)
-        return param_value
-    elif param_name == cl_device_info.CL_DEVICE_MAX_WORK_ITEM_SIZES:
-        sz = size_t()
-        clGetDeviceInfo.call(device, param_name, 0, None, byref(sz))
-        nd = sz.value // sizeof(size_t)
-        param_value = (size_t * nd)()
-        clGetDeviceInfo.call(device, param_name, sz,
-                             byref(param_value), None)
-        return tuple(int(x) for x in param_value)
-    elif param_name == cl_device_info.CL_DEVICE_EXECUTION_CAPABILITIES:
-        param_value = cl_device_exec_capabilities()
-        clGetDeviceInfo.call(device, param_name, sizeof(param_value),
-                             byref(param_value), None)
-        return param_value
-    elif param_name == cl_device_info.CL_DEVICE_QUEUE_PROPERTIES:
-        param_value = cl_command_queue_properties()
-        clGetDeviceInfo.call(device, param_name, sizeof(param_value),
-                             byref(param_value), None)
-        return param_value
-    elif param_name == cl_device_info.CL_DEVICE_PLATFORM:
-        param_value = cl_platform()
-        clGetDeviceInfo.call(device, param_name, sizeof(param_value),
-                             byref(param_value), None)
-        return param_value
-    else:
-        param_value = cl_uint()
-        clGetDeviceInfo.call(device, param_name, sizeof(param_value),
-                             byref(param_value), None)
-        return int(param_value.value)
+            value = data
+        if isinstance(value, cl_bool):
+            value = bool(value.value)
+        elif isinstance(value, (cl_uint, cl_ulong, size_t)) and \
+            not isinstance(value, (cl_enum, cl_uenum, cl_bitfield)):
+            value = int(value.value)
+        elif isinstance(value, long):
+            value = int(value)
+        return value
+    ctype = _device_info_types[param_name]
+    return infer(data, ctype)
+
 
 ###################
 # Context Objects #
@@ -3153,13 +3160,13 @@ def main():
                 print("       Version: %s" % d.version)
                 print("       Profile: %s" % d.profile)
                 print("        Driver: %s" % d.driver_version)
-                for ul in itertools.chain(_device_info_ulongs, _device_info_sizes, _device_info_bools, _device_info_counts):
-                    try:
-                        print("       {:44s}: {}".format(ul, clGetDeviceInfo(d, ul)))
-                    except InvalidValueError:
-                        print("       {:44s}: {}".format(ul, "n/a"))
-                print("    Extensions: %s" % ", ".join(d.extensions))
-                print("    Queue properties: %s" % d.queue_properties)
+                for attr_name, attr in cl_device_info.__dict__.items():
+                    if attr_name.startswith("CL_"):
+                        try:
+                            attr = getattr(cl_device_info, attr_name)
+                            print("       {:44s}: {}".format(attr, clGetDeviceInfo(d, attr)))
+                        except Exception as e:
+                            print("       {:44s}: n/a ({})".format(attr, type(e).__name__))
 
 
 if __name__ == '__main__':
