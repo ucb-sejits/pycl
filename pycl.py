@@ -1404,9 +1404,11 @@ def clGetDeviceInfo(device, param_name):
     def infer(data, ctype):
         if ctype == char_p: # string
             value = cast(data, ctype).value
+            if str != bytes and isinstance(value, bytes): # py3 hack
+                value = value.decode('utf-8')
         elif issubclass(ctype, _ctypes._Pointer): # array
             elem_ctype = ctype._type_
-            n = len(data) / sizeof(elem_ctype)
+            n = len(data) // sizeof(elem_ctype)
             arr = (elem_ctype*n).from_buffer(data)
             value = tuple(infer(e, elem_ctype) for e in arr)
         elif isinstance(data, ctypes.Array):
@@ -1420,8 +1422,6 @@ def clGetDeviceInfo(device, param_name):
         elif isinstance(value, (cl_uint, cl_ulong, size_t)) and \
             not isinstance(value, (cl_enum, cl_uenum, cl_bitfield)):
             value = int(value.value)
-        elif isinstance(value, long):
-            value = int(value)
         return value
     ctype = _device_info_types[param_name]
     return infer(data, ctype)
