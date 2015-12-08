@@ -3145,7 +3145,7 @@ _make_all()
 
 
 def main():
-    import sys, itertools
+    import sys, itertools, inspect
     if '--doctest' in sys.argv:
         import doctest
         doctest.testmod()
@@ -3165,10 +3165,9 @@ def main():
                 print("       Version: %s" % d.version)
                 print("       Profile: %s" % d.profile)
                 print("        Driver: %s" % d.driver_version)
-                for attr_name, attr in cl_device_info.__dict__.items():
-                    if attr_name.startswith("CL_"):
+                for name, attr in inspect.getmembers(cl_device_info):
+                    if name.startswith("CL_"):
                         try:
-                            attr = getattr(cl_device_info, attr_name)
                             print("       {:44s}: {}".format(attr, clGetDeviceInfo(d, attr)))
                         except Exception as e:
                             print("       {:44s}: n/a ({})".format(attr, type(e).__name__))
