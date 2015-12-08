@@ -1369,6 +1369,35 @@ _device_info_types = {
     cl_device_info.CL_DEVICE_IMAGE_BASE_ADDRESS_ALIGNMENT : cl_uint, # guessed. not in docs
 }
 
+def _infer_pytype(data, ctype):
+    """
+    Interpet 'data' as the given ctype and return the corresponding
+    python object. See https://docs.python.org/2/library/ctypes.html#fundamental-data-types
+    >>> _infer_pytype(b"hello world", char_p)
+    'hello world'
+    """
+    if ctype == char_p: # string
+        value = cast(data, ctype).value
+        if sys.version_info[0] > 2:
+            value = value.decode('utf-8')
+    elif issubclass(ctype, _ctypes._Pointer): # array
+        elem_ctype = ctype._type_
+        n = len(data) // sizeof(elem_ctype)
+        arr = (elem_ctype*n).from_buffer(data)
+        value = tuple(_infer_pytype(e, elem_ctype) for e in arr)
+    elif isinstance(data, ctypes.Array):
+        assert len(data) == sizeof(ctype)
+        v = ctype.from_buffer(data)
+        value = _infer_pytype(v, ctype)
+    else:
+        value = data
+    if isinstance(value, cl_bool):
+        value = bool(value.value)
+    elif isinstance(value, (cl_uint, cl_ulong, size_t)) and \
+        not isinstance(value, (cl_enum, cl_uenum, cl_bitfield)):
+        value = int(value.value)
+    return value
+
 @_wrapdll(cl_device, cl_device_info, size_t, void_p, P(size_t))
 def clGetDeviceInfo(device, param_name):
     """
@@ -1399,32 +1428,8 @@ def clGetDeviceInfo(device, param_name):
     sz = size_t()
     clGetDeviceInfo.call(device, param_name, 0, None, byref(sz))
     data = ctypes.create_string_buffer(sz.value)
-    clGetDeviceInfo.call(device, param_name, sizeof(data), 
-                         byref(data), None)
-    def infer(data, ctype):
-        if ctype == char_p: # string
-            value = cast(data, ctype).value
-            if str != bytes and isinstance(value, bytes): # py3 hack
-                value = value.decode('utf-8')
-        elif issubclass(ctype, _ctypes._Pointer): # array
-            elem_ctype = ctype._type_
-            n = len(data) // sizeof(elem_ctype)
-            arr = (elem_ctype*n).from_buffer(data)
-            value = tuple(infer(e, elem_ctype) for e in arr)
-        elif isinstance(data, ctypes.Array):
-            assert len(data) == sizeof(ctype)
-            v = ctype.from_buffer(data)
-            value = infer(v, ctype)
-        else:
-            value = data
-        if isinstance(value, cl_bool):
-            value = bool(value.value)
-        elif isinstance(value, (cl_uint, cl_ulong, size_t)) and \
-            not isinstance(value, (cl_enum, cl_uenum, cl_bitfield)):
-            value = int(value.value)
-        return value
-    ctype = _device_info_types[param_name]
-    return infer(data, ctype)
+    clGetDeviceInfo.call(device, param_name, sizeof(data), byref(data), None)
+    return _infer_pytype(data, _device_info_types[param_name])
 
 
 ###################
