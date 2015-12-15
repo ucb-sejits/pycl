@@ -105,7 +105,7 @@ extensions (like OpenGL interop). Maybe later.
 #
 # tl;dr - MIT license.
 
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 
 import ctypes
 import _ctypes
