@@ -110,7 +110,7 @@ __version__ = '0.1.2'
 import ctypes
 import _ctypes
 from ctypes import (
-    c_size_t as size_t, c_void_p as void_p, c_char_p as char_p,
+    c_size_t as size_t, c_void_p, c_char_p as char_p,
     POINTER as P, byref, sizeof, pointer, cast, create_string_buffer)
 import os
 import sys
@@ -121,6 +121,15 @@ try:
 except ImportError:
     np = None
     pass
+
+class void_p(c_void_p):
+    # base class for various objects in OpenCL.
+    def __eq__(self, o):
+        """True iff the object we wrap is the same (accd to pointer equality)."""
+        try:
+            return self.value == o.value
+        except AttributeError:
+            return False
 
 class cl_sampler(void_p): pass
 
